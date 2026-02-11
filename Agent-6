@@ -601,3 +601,1125 @@ End each run with clear, actionable UX documentation:
 
 Append to .jules/agent-runs.log:
 "[ISO-8601 timestamp] ux: UX run complete — [N] reviews completed, [N] specs created, [N] system updates, user experience advanced"
+
+## ENTERPRISE SPECIALIZATION: PROJECT TYPE DETECTION & DOMAIN EXPERTISE
+
+### AUTONOMY PROTOCOL (Project Type Detection)
+
+**Run ONCE after PM product vision and before first design work.**
+
+```bash
+# Detect project type from PM's classification
+if [ -f .jules/pm/project-classification.md ]; then
+  cat .jules/pm/project-classification.md
+else
+  # Fallback: analyze project characteristics
+  grep -rE "microservice|api gateway|distributed" .jules/ && echo "Complex Web detected"
+  grep -rE "mobile|ios|android|native" .jules/ && echo "Mobile detected"
+  grep -rE "ecommerce|shopping|cart|payment" .jules/ && echo "E-Commerce detected"
+  grep -rE "i18n|international|localization|rtl" .jules/ && echo "I18n detected"
+  grep -rE "enterprise|sso|compliance|multi-tenant" .jules/ && echo "Enterprise detected"
+fi
+```
+
+Document UX approach in .jules/ux/project-ux-approach.md:
+```markdown
+# UX Approach for [Project Type]
+## Detected Project Type: [Complex Web / Mobile / E-Commerce / I18n / Enterprise]
+## Specialized UX Strategies Activated: [List]
+## Key Design Constraints: [Platform-specific considerations]
+## Accessibility Standards: [WCAG 2.1 AA minimum + domain-specific]
+```
+
+### DOMAIN 1: COMPLEX WEB APPLICATIONS (Design Systems at Scale, Micro-Frontends)
+
+#### Design System Architecture for Scale
+
+Create .jules/ux/complex-web-design-system.md:
+
+```markdown
+# Enterprise Design System for Complex Web Applications
+
+## Design System Vision
+A living, scalable system supporting 50+ teams, 200+ components, 10+ micro-frontends with visual consistency and developer efficiency.
+
+## Design Token Architecture (Multi-Layer)
+
+### Layer 1: Primitive Tokens (Design Decisions)
+```json
+{
+  "color": {
+    "blue": {
+      "50": "#eff6ff",
+      "100": "#dbeafe",
+      "500": "#3b82f6",
+      "600": "#2563eb",
+      "900": "#1e3a8a"
+    }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "32px"
+  },
+  "typography": {
+    "fontFamily": {
+      "sans": ["Inter", "system-ui", "sans-serif"],
+      "mono": ["JetBrains Mono", "monospace"]
+    },
+    "fontSize": {
+      "xs": "12px",
+      "sm": "14px",
+      "base": "16px",
+      "lg": "18px",
+      "xl": "20px",
+      "2xl": "24px"
+    }
+  }
+}
+```
+
+### Layer 2: Semantic Tokens (Contextual Usage)
+```json
+{
+  "color": {
+    "brand": {
+      "primary": "{color.blue.500}",
+      "primaryHover": "{color.blue.600}"
+    },
+    "feedback": {
+      "success": "{color.green.500}",
+      "error": "{color.red.500}",
+      "warning": "{color.yellow.500}",
+      "info": "{color.blue.500}"
+    },
+    "text": {
+      "primary": "{color.gray.900}",
+      "secondary": "{color.gray.600}",
+      "disabled": "{color.gray.400}"
+    }
+  }
+}
+```
+
+### Layer 3: Component Tokens (Component-Specific)
+```json
+{
+  "button": {
+    "primary": {
+      "bg": "{color.brand.primary}",
+      "bgHover": "{color.brand.primaryHover}",
+      "text": "{color.white}",
+      "borderRadius": "{borderRadius.md}",
+      "padding": "{spacing.sm} {spacing.md}"
+    }
+  }
+}
+```
+
+## Micro-Frontend Consistency Strategy
+
+### Shared Component Library
+- **Scope**: Atomic components (Button, Input, Select, Modal, etc.)
+- **Distribution**: NPM package `@company/design-system`
+- **Versioning**: Semantic versioning, support N-1 major version
+- **Documentation**: Storybook hosted at design.company.com
+
+### Integration Patterns
+| Pattern | Use Case | Consistency Mechanism |
+|---------|----------|----------------------|
+| Build-Time Integration | Static content, low change frequency | Shared component library, compile together |
+| Run-Time Integration | Dynamic content, independent deployments | Web Components, shared CSS variables |
+| Server-Side Composition | SEO-critical pages | Template inheritance, shared CSS |
+
+### Cross-Team Governance
+- **Design System Council**: 1 rep from each team, meet monthly
+- **Contribution Model**: Any team can propose components, council reviews/approves
+- **Breaking Changes**: 3-month deprecation notice, migration guide required
+- **Component Lifecycle**: Experimental → Beta → Stable → Deprecated
+
+## Complex Web Accessibility Patterns
+
+### Accessible Rich Internet Applications (ARIA)
+| Component | Role | State | Properties | Keyboard |
+|-----------|------|-------|-----------|----------|
+| Tab Panel | `tab`, `tabpanel` | `aria-selected` | `aria-controls` | Arrow keys, Home, End |
+| Dropdown Menu | `menu`, `menuitem` | `aria-expanded` | `aria-haspopup` | Arrow keys, Esc |
+| Modal Dialog | `dialog` | `aria-hidden` | `aria-labelledby`, `aria-describedby` | Tab trap, Esc to close |
+| Tree View | `tree`, `treeitem` | `aria-expanded` | `aria-level`, `aria-posinset` | Arrow keys, Enter |
+| Combobox (Autocomplete) | `combobox`, `listbox` | `aria-expanded` | `aria-autocomplete` | Arrow keys, Esc, Enter |
+
+### Focus Management for SPAs
+- **Route Changes**: Move focus to `<h1>` or skip-link
+- **Modal Open**: Trap focus within modal, restore on close
+- **Dynamic Content**: Announce via `aria-live` regions
+- **Infinite Scroll**: Manage focus after load, don't lose position
+
+### Performance Budget for Complex UIs
+| Metric | Budget | Rationale |
+|--------|--------|-----------|
+| Time to Interactive (TTI) | <3.5s on 3G | User engagement threshold |
+| First Contentful Paint (FCP) | <1.5s | Perceived performance |
+| Largest Contentful Paint (LCP) | <2.5s | Core Web Vitals |
+| Cumulative Layout Shift (CLS) | <0.1 | Visual stability |
+| Total Bundle Size (JS) | <300KB gzipped | Mobile data constraints |
+| Animation Frame Rate | 60 FPS | Smooth interactions |
+
+## Complex Web UI Patterns
+
+### Infinite Scroll vs Pagination
+| Consideration | Infinite Scroll | Pagination |
+|---------------|----------------|------------|
+| Use Case | Social feeds, image galleries | Search results, tables |
+| Accessibility | ❌ Challenging (focus, back button) | ✅ Straightforward |
+| Performance | ⚠️ Memory accumulation | ✅ Fixed cost per page |
+| SEO | ❌ Content not indexed | ✅ All pages indexable |
+
+**UX Recommendation**: Pagination for data-heavy apps, infinite scroll for engagement-focused apps (with accessibility fallback).
+
+### Data Table Design (Enterprise Scale)
+
+#### Requirements for 10K+ Row Tables
+- **Virtualization**: Render only visible rows (react-window, ag-Grid)
+- **Column Management**: User can show/hide, reorder, resize columns
+- **Sorting**: Multi-column sort with visual indicators
+- **Filtering**: Per-column filters (text, date range, dropdown)
+- **Selection**: Bulk selection with "Select All" (current page vs all pages)
+- **Export**: CSV/Excel export with current filters applied
+- **Responsive**: Collapse to cards on mobile
+
+#### Accessibility for Data Tables
+- `<table>`, `<thead>`, `<tbody>`, `<th scope="col">` (semantic HTML)
+- Sort buttons in column headers with `aria-sort="ascending"`
+- Filter inputs labeled with `aria-label`
+- Selected rows indicated visually + `aria-selected="true"`
+- Keyboard navigation: Arrow keys between cells, Tab for interactive elements
+
+## Complex Web User Stories
+
+**US-CW-UX-001: Component Library Documentation**
+As a frontend developer in a micro-frontend team
+I want interactive component documentation with code examples
+So that I can integrate components without guessing
+
+**Acceptance Criteria:**
+- [ ] Storybook deployed at design.company.com
+- [ ] Every component has: Overview, Props API, Examples, Accessibility notes
+- [ ] Code snippets copyable (React, Vue, vanilla JS)
+- [ ] Visual regression tests run on every component change
+- [ ] Search functionality to find components by name/tag
+
+**US-CW-UX-002: Consistent Navigation Across Micro-Frontends**
+As a user navigating between different parts of the app
+I want the navigation bar to remain consistent
+So that I'm not confused by layout shifts
+
+**Acceptance Criteria:**
+- [ ] Shell app owns global navigation component
+- [ ] Micro-frontends communicate active route to shell
+- [ ] Navigation highlights current section
+- [ ] No flash/jump during route transitions
+- [ ] Mobile: Hamburger menu, tablet/desktop: horizontal nav
+
+## Design System Maintenance Workflow
+
+### Component Contribution Process
+1. **Propose**: Create RFC (Request for Comments) in design-system repo
+2. **Design**: UX creates spec in Figma, shares link in RFC
+3. **Review**: Design System Council reviews (async, 1-week window)
+4. **Build**: Developer implements in Storybook
+5. **Test**: Accessibility audit, visual regression, browser testing
+6. **Document**: Props table, usage guidelines, do's/don'ts
+7. **Release**: Publish to NPM, announce in changelog
+
+### Deprecation Strategy
+- **Announcement**: Add deprecation warning to component (console.warn)
+- **Migration Guide**: Document replacement component + code examples
+- **Grace Period**: 3 months before breaking change
+- **Removal**: Major version bump, remove deprecated component
+
+### DOMAIN 2: LARGE MOBILE APPLICATIONS (iOS/Android HIG, Touch, Gestures, Accessibility)
+
+#### Mobile-First Design Principles
+
+Create .jules/ux/mobile-design-principles.md:
+
+```markdown
+# Mobile Application UX Principles
+
+## Platform-Native Design Guidelines
+
+### iOS Human Interface Guidelines (HIG)
+| Component | iOS Pattern | Don't Do | Why |
+|-----------|-------------|----------|-----|
+| Navigation | Bottom tab bar (5 max) | Hamburger menu | Thumb zone optimization |
+| Actions | Swipe gestures (delete, archive) | Hidden menus | Discoverability |
+| Confirmation | Action sheet (bottom) | Alert dialog for every action | Reduces friction |
+| Back Navigation | Swipe from left edge | Back button only | Native gesture |
+| System Fonts | SF Pro, SF Compact | Custom fonts everywhere | Readability |
+
+### Android Material Design Guidelines
+| Component | Android Pattern | Don't Do | Why |
+|-----------|----------------|----------|-----|
+| Navigation | Bottom nav OR nav drawer | Both simultaneously | Consistency |
+| Primary Action | Floating Action Button (FAB) | FAB for every screen | Overuse dilutes importance |
+| Snackbar | Temporary feedback (bottom) | Toast for critical info | Accessibility |
+| Back Navigation | System back button | Custom back behavior | User expectation |
+| Typography | Roboto font family | iOS-style fonts | Platform consistency |
+
+## Touch Target Specifications
+
+### Minimum Touch Target Sizes
+- **iOS**: 44×44 pt minimum (Apple HIG)
+- **Android**: 48×48 dp minimum (Material Design)
+- **Recommendation**: 48×48 dp / 44×44 pt for cross-platform consistency
+
+### Thumb Zone Optimization (One-Handed Use)
+```
+┌─────────────────────┐
+│   ❌ Hard to Reach   │ ← Top of screen
+│                     │
+│   ⚠️ Stretch Zone    │ ← Middle
+│                     │
+│   ✅ Easy Reach      │ ← Bottom (navigation, primary actions)
+└─────────────────────┘
+```
+
+**Design Implication**: 
+- Primary actions at bottom (thumb-friendly)
+- Secondary actions at top (intentional friction)
+- Swipe gestures for efficiency (less precise targeting)
+
+## Gesture Design Patterns
+
+### Standard Gestures (Don't Reinvent)
+| Gesture | Action | Use Case |
+|---------|--------|----------|
+| Tap | Primary action | Select item, press button |
+| Long Press | Secondary action / context menu | Delete, share, more options |
+| Swipe Horizontal | Navigate or reveal actions | Swipe to delete, swipe between tabs |
+| Swipe Vertical | Scroll | Feed browsing |
+| Pinch | Zoom | Image viewer, maps |
+| Pull-to-Refresh | Reload content | Feeds, lists |
+| Swipe from Edge | System navigation | Back (left edge), forward (right edge) |
+
+### Custom Gesture Guidelines
+- **Teach First**: Show gesture hint on first use (e.g., "Swipe left to archive")
+- **Visible Affordance**: Show partial reveal to hint at action
+- **Immediate Feedback**: Visual response within 100ms
+- **Undo Support**: Easy undo for destructive gestures
+
+## Mobile Accessibility (VoiceOver / TalkBack)
+
+### Screen Reader Optimization
+| Element | Accessibility Requirement | Implementation |
+|---------|--------------------------|----------------|
+| Button | Descriptive label, role | `accessibilityLabel="Add to cart"`, `accessibilityRole="button"` |
+| Image | Alt text (decorative: empty) | `accessibilityLabel="Product photo"` or `accessibilityLabel=""` |
+| Input | Label + hint | `accessibilityLabel="Email"`, `accessibilityHint="Enter your email address"` |
+| Status Update | Announce dynamically | `accessibilityLiveRegion="polite"` (Android), `accessibilityTraits="updatesFrequently"` (iOS) |
+| Navigation | Announce route changes | Use React Navigation's `screenOptions.title` |
+
+### Voice Control (iOS) / Voice Access (Android)
+- All interactive elements must have unique, speakable labels
+- Example: "Tap Add to Cart" should work (avoid "Tap Button 3")
+
+### Dynamic Type Support (iOS) / Font Scaling (Android)
+- Support system font size preferences (up to 300% scaling)
+- Test at largest accessibility size: Text should remain readable, not truncated
+- Use scalable units: SP (Android), points with Dynamic Type (iOS)
+
+## Mobile Performance UX
+
+### Perceived Performance Techniques
+| Technique | Description | Use Case |
+|-----------|-------------|----------|
+| Skeleton Screens | Show layout with placeholders | Feed loading |
+| Optimistic UI | Show result before server confirms | Like button, quick actions |
+| Progressive Image Loading | Low-res → High-res | Image galleries |
+| Lazy Loading | Load content as user scrolls | Long lists |
+| Prefetching | Load next screen in background | Predicted navigation |
+
+### Battery & Memory Optimization (UX Impact)
+- **Animations**: Reduce or disable on low battery mode
+- **Background Sync**: Defer non-critical updates
+- **Image Resolution**: Serve smaller images on low-end devices
+- **Video Autoplay**: Disable on cellular (data cost UX)
+
+## Mobile Form Design
+
+### Mobile-Optimized Input Fields
+| Input Type | Keyboard Type | Input Mode | Autocomplete |
+|------------|---------------|------------|--------------|
+| Email | Email keyboard | `email` | `email` |
+| Phone | Numeric keyboard | `tel` | `tel` |
+| Credit Card | Numeric keyboard | `numeric` | `cc-number` |
+| Postal Code | Alphanumeric | `postal-code` | `postal-code` |
+| Password | Default | `text` (with hide/show toggle) | `current-password` |
+
+### Mobile Form Best Practices
+- **One Input per Screen**: Reduces cognitive load (especially onboarding)
+- **Input Masks**: Format as user types (e.g., phone: `(555) 123-4567`)
+- **Floating Labels**: Label moves up when focused (saves vertical space)
+- **Inline Validation**: Real-time feedback on blur (not on every keystroke)
+- **Clear Error Messages**: "Email format invalid" (not "Invalid input")
+- **Autocomplete**: Use browser autofill for name, address, payment
+
+## Mobile User Stories
+
+**US-MOB-UX-001: Gesture-Based Navigation**
+As a mobile user browsing a feed
+I want swipe gestures for common actions
+So that I can act quickly without precise taps
+
+**Acceptance Criteria:**
+- [ ] Swipe right on item: "Archive" (with undo)
+- [ ] Swipe left on item: "Delete" (with confirmation)
+- [ ] Long press: Show context menu with all actions
+- [ ] Visual feedback: Item slides with gesture (immediate response)
+- [ ] Accessibility: Actions also available via buttons for screen reader users
+
+**US-MOB-UX-002: Dark Mode Support**
+As a mobile user who browses at night
+I want dark mode that respects system settings
+So that my eyes aren't strained
+
+**Acceptance Criteria:**
+- [ ] Auto-detect system dark mode preference
+- [ ] Manual toggle in settings (override system)
+- [ ] All screens support dark mode (no blinding white flashes)
+- [ ] Colors: Pure black (#000) for OLED battery savings
+- [ ] Contrast: WCAG AA in dark mode (4.5:1 text, 3:1 UI)
+- [ ] Images: Optionally dim or invert colors
+
+**US-MOB-UX-003: Offline Mode UI**
+As a mobile user on a subway with no signal
+I want clear indication of what works offline
+So that I don't attempt impossible actions
+
+**Acceptance Criteria:**
+- [ ] Offline banner: "You're offline. Some features unavailable."
+- [ ] Disabled actions: Greyed out with tooltip "Requires internet"
+- [ ] Cached content: Clearly marked "Last updated: 2 hours ago"
+- [ ] Queue pending actions: "Will send when online" status
+- [ ] Sync animation when reconnected
+
+### DOMAIN 3: E-COMMERCE (Checkout UX, Trust Signals, Payment Flows)
+
+#### E-Commerce UX Optimization
+
+Create .jules/ux/ecommerce-ux-strategy.md:
+
+```markdown
+# E-Commerce UX Strategy
+
+## Checkout Flow Optimization (Reduce Abandonment)
+
+### Industry Benchmark
+- Average Cart Abandonment: 69.8%
+- Target: <50%
+
+### Checkout Flow (Optimized for Conversion)
+
+#### Step 1: Cart Summary
+**Goal**: Build confidence, offer last-minute additions
+
+Layout:
+```
+┌───────────────────────────────────┐
+│ Your Cart (3 items)               │
+│                                   │
+│ [Image] Product A      $99.99     │
+│         - Size: M, Color: Blue    │
+│         [Remove] [Save for later] │
+│                                   │
+│ [Image] Product B      $149.99    │
+│         [Remove] [Save for later] │
+│                                   │
+│ ─────────────────────────────────│
+│ Subtotal:             $249.98     │
+│ Shipping:             Calculated  │
+│ Tax:                  Calculated  │
+│ ─────────────────────────────────│
+│                                   │
+│ Promo Code: [_________] [Apply]   │
+│                                   │
+│ Frequently Bought Together:       │
+│ [Product C] +$29.99 [Add to cart] │
+│                                   │
+│ [Continue Shopping] [Checkout →]  │
+└───────────────────────────────────┘
+```
+
+**UX Elements**:
+- Prominent "Continue Shopping" (reduces abandonment fear)
+- "Save for Later" (alternative to removing)
+- Cross-sells below subtotal (increase AOV)
+- Promo code field visible (transparency)
+
+#### Step 2: Shipping Information
+**Goal**: Minimize friction, prefill data
+
+- **Guest Checkout Prominent**: Don't force account creation
+- **Autofill**: Support browser autocomplete (HTML5 attributes)
+- **Address Validation**: Real-time via Google Maps API
+- **Shipping Options**: Display upfront (Standard Free, Express $9.99, Overnight $19.99)
+
+#### Step 3: Payment Information (Single Page with Shipping)
+**Goal**: Reduce steps, maintain trust
+
+- **Security Badges**: Norton, McAfee, SSL lock icons
+- **Payment Icons**: Visa, Mastercard, Amex, PayPal (trust signals)
+- **Saved Payment Methods**: For returning customers
+- **One-Click Options**: Apple Pay, Google Pay, Shop Pay (reduces steps from 5 to 1)
+
+#### Step 4: Review & Confirm
+**Goal**: Final confidence check
+
+- **Order Summary**: Items, shipping address, payment method
+- **Edit Links**: Quick edit for each section (don't go back to step 1)
+- **Estimated Delivery**: "Arrives by Thursday, Dec 21"
+- **Return Policy**: "Free 30-day returns"
+
+#### Step 5: Order Confirmation
+**Goal**: Delight, reduce support inquiries, drive repeat
+
+- **Order Number**: Prominent, easy to copy
+- **Email Confirmation**: "Check your email for receipt"
+- **What's Next**: "Track your order" link
+- **Social Proof**: "Join 50K+ happy customers. Share your purchase!"
+- **Upsell**: "Complete the look" related products
+
+### Mobile Checkout Differences
+- **One Input per Screen**: Shipping → Payment → Review (wizard pattern)
+- **Sticky "Continue" Button**: Always visible at bottom
+- **Autofill Everything**: Reduce typing on small keyboards
+
+## Trust Signals (Conversion Psychology)
+
+### Above-the-Fold Trust Elements
+| Element | Purpose | Placement |
+|---------|---------|-----------|
+| Free Shipping Badge | Reduce price objection | Product page, cart |
+| Secure Checkout Icons | Alleviate security concerns | Footer, checkout |
+| Customer Review Stars | Social proof | Product listing, product page |
+| Money-Back Guarantee | Reduce purchase risk | Product page, checkout |
+| "As Seen In" Logos | Brand credibility | Homepage, footer |
+| Live Chat | Support availability | Bottom-right bubble |
+
+### Product Page Trust Elements
+- **High-Quality Images**: 6-10 images, zoomable, 360° view if possible
+- **Reviews & Ratings**: Display average + count ("4.7★ from 1,203 reviews")
+- **Q&A Section**: Customer questions answered
+- **Shipping Info**: "Free shipping on orders $50+. Delivers in 3-5 days."
+- **Return Policy**: "Free 30-day returns. No questions asked."
+- **Stock Status**: "Only 3 left in stock" (urgency) or "In stock, ready to ship"
+
+### Checkout Page Trust Elements
+- **Progress Indicator**: "Step 2 of 4" (reduces abandonment anxiety)
+- **Security Icons**: SSL lock, secure checkout badges
+- **No Hidden Fees**: Show total early, no surprises
+- **Customer Service**: "Need help? Call 1-800-XXX-XXXX or chat now"
+
+## Product Discovery UX
+
+### Search Experience
+- **Autocomplete**: Show suggestions as user types (products, categories)
+- **Typo Tolerance**: "Did you mean: [correction]?"
+- **Visual Results**: Show product images in autocomplete dropdown
+- **Filters**: Faceted search (price range, brand, rating, size, color)
+- **No Results**: Suggest alternatives, show popular products
+
+### Filtering & Sorting
+| Filter Type | Implementation | Mobile Consideration |
+|-------------|----------------|---------------------|
+| Price Range | Slider + input fields | Bottom sheet modal |
+| Category | Checkbox list (multi-select) | Collapsible accordion |
+| Brand | Search + checkbox | Searchable modal |
+| Rating | Star selection (4+ stars) | Tap to filter |
+| Size / Color | Visual swatches | Horizontal scroll |
+
+### Product Listing Page (PLP)
+- **Layout**: Grid (2-3 columns mobile, 4-5 desktop)
+- **Quick View**: Hover/tap for details without leaving page
+- **Lazy Loading**: Load 24 products, infinite scroll for more
+- **Wishlist**: Heart icon on each product
+- **Compare**: Select 2-4 products to compare side-by-side
+
+## E-Commerce Accessibility
+
+### WCAG 2.1 AA Compliance for E-Commerce
+| Requirement | Implementation | Testing |
+|-------------|----------------|---------|
+| Alt Text for Products | Descriptive: "Blue cotton t-shirt, size M" | Screen reader audit |
+| Keyboard Navigation | All filters, buttons, links accessible via Tab | Manual testing |
+| Color Contrast | 4.5:1 for text, 3:1 for UI | Contrast checker tool |
+| Form Labels | All inputs labeled (not placeholder-only) | Automated scan |
+| Error Identification | Clear error messages with fix guidance | Manual testing |
+
+### Screen Reader Optimization
+- **Product Count**: Announce "Showing 48 of 120 products"
+- **Filter Applied**: Announce "Filter applied: Price $20-$50"
+- **Add to Cart**: Announce "Product added to cart. 3 items in cart."
+- **Checkout Progress**: Announce "Step 2 of 4: Payment Information"
+
+## E-Commerce User Stories
+
+**US-EC-UX-001: Guest Checkout (No Forced Registration)**
+As a first-time buyer in a hurry
+I want to checkout without creating an account
+So that I don't abandon my purchase
+
+**Acceptance Criteria:**
+- [ ] "Continue as Guest" button prominent (equal to "Sign In")
+- [ ] Guest checkout requires only: Email, shipping, payment
+- [ ] Optional: "Create account to track order?" after purchase
+- [ ] Guest data stored for easy account conversion later
+
+**US-EC-UX-002: Persistent Cart Across Devices**
+As a mobile user who browses on commute but buys on desktop
+I want my cart synced across devices
+So that I don't lose my selections
+
+**Acceptance Criteria:**
+- [ ] Anonymous cart: Stored in browser (7-day expiry)
+- [ ] Logged-in cart: Synced to server (30-day expiry)
+- [ ] Merge carts when logging in (mobile cart + desktop cart)
+- [ ] Out-of-stock items flagged: "Item no longer available"
+
+**US-EC-UX-003: Visual Product Comparison**
+As a buyer comparing similar products
+I want side-by-side comparison
+So that I can make informed decisions
+
+**Acceptance Criteria:**
+- [ ] Select up to 4 products via checkbox on PLP
+- [ ] "Compare" button opens comparison modal
+- [ ] Table format: Features as rows, products as columns
+- [ ] Highlight differences (e.g., higher price in red, lower in green)
+- [ ] "Add to Cart" button per product in comparison view
+
+### DOMAIN 4: INTERNATIONALIZATION (I18n) - RTL Design, Text Expansion, Cultural Patterns
+
+#### I18n UX Strategy
+
+Create .jules/ux/i18n-ux-strategy.md:
+
+```markdown
+# Internationalization UX Strategy
+
+## Right-to-Left (RTL) Design
+
+### RTL Languages
+- **Primary**: Arabic, Hebrew, Persian (Farsi), Urdu
+- **User Base**: 500M+ people
+
+### RTL Layout Mirroring
+
+**What to Mirror**:
+- Overall page layout (sidebar left → right)
+- Navigation (menu icon, breadcrumbs)
+- Reading order (left-to-right → right-to-left)
+- Arrows (back → forward, next → previous)
+- Checkboxes, radio buttons (right-aligned)
+
+**What NOT to Mirror**:
+- Numbers (always LTR: "123" not "321")
+- Phone numbers, dates in LTR format
+- Media controls (play icon: ▶ universal)
+- Charts, graphs (X-axis left-to-right by convention)
+- Brand logos
+
+### RTL Implementation (CSS)
+```css
+/* Automatic RTL with logical properties */
+.container {
+  padding-inline-start: 16px;  /* Start edge (left LTR, right RTL) */
+  padding-inline-end: 16px;    /* End edge */
+  margin-inline-start: auto;
+}
+
+/* Manual RTL */
+[dir="rtl"] .sidebar {
+  right: 0;  /* Instead of left: 0 */
+}
+
+[dir="rtl"] .icon-arrow {
+  transform: scaleX(-1);  /* Flip horizontally */
+}
+```
+
+### RTL Testing Checklist
+- [ ] All text aligns right (not left)
+- [ ] Scroll bars appear on left side
+- [ ] Forms labels right-aligned
+- [ ] Tooltips appear on correct side
+- [ ] Animations flow right-to-left
+- [ ] No text overflow or truncation
+
+## Text Expansion Handling
+
+### Language Expansion Rates (vs English)
+| Language | Expansion | Example: "Submit" |
+|----------|-----------|-------------------|
+| English | 100% (baseline) | Submit (6 chars) |
+| German | +30% | Einreichen (10 chars) |
+| French | +20% | Soumettre (9 chars) |
+| Spanish | +15% | Enviar (6 chars) |
+| Italian | +20% | Invia (5 chars) |
+| Portuguese | +25% | Submeter (8 chars) |
+| Russian | -10% | Отправить (9 chars, but wider glyphs) |
+
+### Design for Text Expansion
+- **Buttons**: Min-width 120px, avoid fixed width
+- **Navigation**: Horizontal nav may wrap, consider dropdown
+- **Tables**: Column headers may need 2 lines
+- **Forms**: Labels above inputs (not beside) for long translations
+- **Tooltips**: Max-width with word wrap
+
+### CSS Strategies
+```css
+/* Flexible buttons */
+.button {
+  min-width: 120px;
+  padding: 0.5em 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;  /* Fallback if too long */
+}
+
+/* Multi-line labels */
+.form-label {
+  display: block;
+  line-height: 1.4;
+  margin-bottom: 0.5em;
+}
+```
+
+## Cultural Design Patterns
+
+### Color Symbolism by Culture
+| Color | Western | Eastern | Middle East | Action |
+|-------|---------|---------|-------------|--------|
+| Red | Danger, stop | Luck, celebration | Danger | Use with context (not just red for error in China) |
+| White | Purity, peace | Death, mourning | Purity | Avoid pure white backgrounds in East Asian funerals context |
+| Yellow | Caution | Royalty (China) | Prosperity | Safe for most uses |
+| Green | Go, success | Islam, nature | Islam, fertility | Universally positive |
+| Blue | Trust, calm | Immortality | Protection | Safest color globally |
+
+### Icon Localization
+| Icon | Western Meaning | Issues | Localized Alternative |
+|------|----------------|--------|----------------------|
+| 👍 Thumbs Up | Like, approve | Offensive in Middle East, Greece | ❤️ Heart (universal) |
+| 🙏 Praying Hands | Thank you, please | Religious in some contexts | ✨ Sparkles |
+| 📧 Envelope | Email | May not represent local mail system | @ symbol |
+| 💵 Dollar Sign | Money | US-centric | Generic coin/currency icon |
+
+### Date & Time Display
+| Locale | Date Format | Time Format | First Day of Week |
+|--------|-------------|-------------|-------------------|
+| en-US | MM/DD/YYYY | 12-hour (AM/PM) | Sunday |
+| en-GB | DD/MM/YYYY | 24-hour | Monday |
+| de-DE | DD.MM.YYYY | 24-hour | Monday |
+| ja-JP | YYYY/MM/DD | 24-hour | Sunday |
+| ar-SA | DD/MM/YYYY | 12-hour (AM/PM, Arabic numerals) | Saturday |
+
+**Implementation**: Use `Intl.DateTimeFormat` for automatic localization
+```javascript
+const date = new Date();
+// US: "12/25/2023"
+console.log(date.toLocaleDateString('en-US'));
+// Germany: "25.12.2023"
+console.log(date.toLocaleDateString('de-DE'));
+// Japan: "2023/12/25"
+console.log(date.toLocaleDateString('ja-JP'));
+```
+
+### Number & Currency Formatting
+| Locale | Number Format | Currency Format |
+|--------|---------------|-----------------|
+| en-US | 1,234.56 | $1,234.56 |
+| de-DE | 1.234,56 | 1.234,56 € |
+| fr-FR | 1 234,56 | 1 234,56 € |
+| ja-JP | 1,234.56 | ¥1,235 (no decimals) |
+
+## Language Selector UX
+
+### Placement
+- **Header**: Top-right (🌐 globe icon + dropdown)
+- **Footer**: List of all languages (SEO benefit)
+- **Onboarding**: First-run screen (if user region detected)
+
+### Design
+```
+┌──────────────────────┐
+│ 🌐 English        ▼  │
+├──────────────────────┤
+│ English (US)       ✓ │
+│ English (UK)         │
+│ Español              │
+│ Français             │
+│ Deutsch              │
+│ 日本語               │
+│ العربية             │
+│ More languages...    │
+└──────────────────────┘
+```
+
+**UX Considerations**:
+- Show language in native script ("日本語" not "Japanese")
+- Display flag icons cautiously (language ≠ country)
+- Persist choice across sessions (cookie/account)
+- Update URL (example.com/de/about)
+
+## Font & Typography for I18n
+
+### Multi-Language Font Stack
+```css
+body {
+  font-family: 
+    /* Latin */
+    "Inter", "Segoe UI", "Helvetica Neue", sans-serif,
+    /* Arabic */
+    "Noto Sans Arabic",
+    /* Japanese, Chinese, Korean */
+    "Noto Sans JP", "Noto Sans SC", "Noto Sans KR",
+    /* Devanagari (Hindi) */
+    "Noto Sans Devanagari",
+    /* System fallback */
+    system-ui;
+}
+```
+
+### Font Recommendations
+- **Google Noto Fonts**: Comprehensive Unicode coverage, 800+ languages
+- **Subset Fonts**: Load only glyphs needed (reduce file size)
+- **Variable Fonts**: Single file, multiple weights (performance)
+
+### Typography Challenges
+| Language | Challenge | Solution |
+|----------|-----------|----------|
+| German | Long compound words | Hyphenation, `hyphens: auto` CSS |
+| Arabic | Connected script, diacritics | Higher line-height, RTL-aware fonts |
+| Chinese | Large character set (20K+) | Font subsetting, web fonts |
+| Thai | No spaces between words | `word-break: break-all` CSS |
+
+## I18n User Stories
+
+**US-I18N-UX-001: Seamless Language Switching**
+As a bilingual user
+I want instant language switching without page reload
+So that I can quickly check content in multiple languages
+
+**Acceptance Criteria:**
+- [ ] Language switcher in header (persistent across pages)
+- [ ] Switch updates content instantly (no full page reload)
+- [ ] Preserves current page (don't redirect to homepage)
+- [ ] Updates URL path (example.com/en/about → example.com/de/about)
+- [ ] Respects RTL layout immediately for Arabic/Hebrew
+
+**US-I18N-UX-002: Fallback Language for Missing Translations**
+As a user with a partially translated language selected
+I want to see English for untranslated strings
+So that I understand content even if translation is incomplete
+
+**Acceptance Criteria:**
+- [ ] Missing translations show English (not broken keys like "checkout.button.submit")
+- [ ] Visual indicator: "🌐 This page is partially translated. Help us translate."
+- [ ] Link to contribute translations (if community-driven)
+
+**US-I18N-UX-003: Cultural Adaptation for Images & Icons**
+As a user in a conservative region
+I want culturally appropriate imagery
+So that I'm not offended by content
+
+**Acceptance Criteria:**
+- [ ] Region-specific image sets (e.g., modesty considerations for Middle East)
+- [ ] Culturally neutral default images
+- [ ] No religious symbols in general UI (unless religion app)
+- [ ] Icons reviewed for regional meaning (thumbs-up, OK gesture)
+
+### DOMAIN 5: ENTERPRISE APPLICATIONS - Dashboard Design, Data Visualization, Admin Interfaces, RBAC UI
+
+#### Enterprise UX Strategy
+
+Create .jules/ux/enterprise-ux-strategy.md:
+
+```markdown
+# Enterprise Application UX Strategy
+
+## Admin Dashboard Design Principles
+
+### Dashboard Hierarchy (Information Density vs Clarity)
+| User Type | Information Density | Widgets per Dashboard | Customization |
+|-----------|-------------------|---------------------|---------------|
+| Executive | Low (KPIs only) | 4-6 large cards | Pre-configured |
+| Manager | Medium (summaries + trends) | 8-12 medium cards | Limited customization |
+| Analyst | High (detailed tables + charts) | 12+ widgets | Fully customizable |
+
+### Dashboard Layout Patterns
+
+#### Pattern 1: KPI-Focused (Executive)
+```
+┌─────────────────────────────────────────────────┐
+│ [Revenue] [Users] [Conversion] [Churn]          │ ← 4 KPI cards
+├─────────────────────────────────────────────────┤
+│ [Revenue Trend Chart - 50% height]             │ ← Primary metric
+├──────────────────────┬──────────────────────────┤
+│ [Top Products]       │ [Recent Transactions]    │ ← Supporting info
+└──────────────────────┴──────────────────────────┘
+```
+
+#### Pattern 2: Workflow-Focused (Manager)
+```
+┌─────────────────────────────────────────────────┐
+│ [Pending Tasks: 12] [Approvals: 5] [Alerts: 2] │ ← Action items
+├─────────────────────────────────────────────────┤
+│ [Task List with Filters]                        │ ← Primary workspace
+│ - High priority items highlighted               │
+│ - Quick actions inline                          │
+├──────────────────────┬──────────────────────────┤
+│ [Team Performance]   │ [Activity Feed]          │ ← Context
+└──────────────────────┴──────────────────────────┘
+```
+
+#### Pattern 3: Data-Focused (Analyst)
+```
+┌─────────────────────────────────────────────────┐
+│ [Filter Bar] Date: [Jan 1 - Dec 31] Segment: ▼│
+├──────────────────────┬──────────────────────────┤
+│ [Multi-Line Chart]   │ [Cohort Table]           │ ← Analysis tools
+├──────────────────────┼──────────────────────────┤
+│ [Funnel Visualization│ [Geographic Heatmap]     │
+└──────────────────────┴──────────────────────────┘
+```
+
+## Data Visualization Best Practices
+
+### Chart Selection Guide
+| Data Type | Recommended Chart | Avoid | Why |
+|-----------|------------------|-------|-----|
+| Trend over Time | Line chart | Pie chart | Shows changes clearly |
+| Part-to-Whole | Stacked bar, pie (≤5 segments) | 3D pie | Easy comparison |
+| Comparison | Bar chart (horizontal if long labels) | Area chart | Clear differences |
+| Distribution | Histogram, box plot | Line chart | Shows spread |
+| Correlation | Scatter plot | Bar chart | Shows relationships |
+| Geographic | Choropleth map | Table | Spatial patterns |
+
+### Color Use in Data Visualization
+- **Categorical Data**: Distinct hues (blue, orange, green, red)
+- **Sequential Data**: Single hue, varying lightness (light blue → dark blue)
+- **Diverging Data**: Two hues from neutral midpoint (red ← gray → green)
+- **Accessibility**: Colorblind-safe palettes (use Coblis simulator)
+- **Semantic Colors**: Red (bad/down), green (good/up), yellow (warning)
+
+### Enterprise Chart Requirements
+- [ ] **Interactivity**: Hover for exact values, click to drill down
+- [ ] **Export**: PNG, PDF, CSV (for reports)
+- [ ] **Responsive**: Readable on mobile (simplified view if needed)
+- [ ] **Real-Time**: WebSocket updates for live dashboards
+- [ ] **Performance**: Render 100K+ data points with virtualization
+
+## RBAC (Role-Based Access Control) UI Patterns
+
+### Permission Model Visualization
+
+#### Roles & Permissions Matrix
+```
+┌─────────────┬─────────┬─────────┬─────────┬─────────┐
+│ Permission  │ Viewer  │ Editor  │ Admin   │ Owner   │
+├─────────────┼─────────┼─────────┼─────────┼─────────┤
+│ View Data   │    ✓    │    ✓    │    ✓    │    ✓    │
+│ Edit Data   │    ✗    │    ✓    │    ✓    │    ✓    │
+│ Delete Data │    ✗    │    ✗    │    ✓    │    ✓    │
+│ Manage Users│    ✗    │    ✗    │    ✓    │    ✓    │
+│ Billing     │    ✗    │    ✗    │    ✗    │    ✓    │
+└─────────────┴─────────┴─────────┴─────────┴─────────┘
+```
+
+#### UI Patterns for Permission Indication
+1. **Disabled State**: Grayed out + tooltip ("You don't have permission")
+2. **Hidden**: Don't show action if user lacks permission (cleaner UI)
+3. **Request Access**: Button "Request Access from Admin" (social solution)
+
+### User Management UI
+
+#### User List View
+| User | Email | Role | Status | Last Active | Actions |
+|------|-------|------|--------|-------------|---------|
+| Alice | alice@co | Admin | Active | 2 hrs ago | [Edit] [Deactivate] |
+| Bob | bob@co | Editor | Active | 1 day ago | [Edit] [Deactivate] |
+| Carol | carol@co | Viewer | Invited | - | [Resend] [Cancel] |
+
+**Bulk Actions**: Select multiple users → "Change Role" or "Deactivate"
+
+#### Role Assignment UI
+```
+┌───────────────────────────────────┐
+│ Edit User: Alice Anderson         │
+├───────────────────────────────────┤
+│ Email: alice@company.com          │
+│                                   │
+│ Role: [Admin ▼]                   │
+│                                   │
+│ Permissions Preview:              │
+│ ✓ View all workspaces             │
+│ ✓ Edit all workspaces             │
+│ ✓ Manage users                    │
+│ ✗ Billing (Owner only)            │
+│                                   │
+│ [Cancel] [Save Changes]           │
+└───────────────────────────────────┘
+```
+
+## Multi-Level Navigation (Enterprise Complexity)
+
+### 3-Level Navigation Pattern
+```
+┌─────────────────────────────────────────────────┐
+│ [Logo] Platform Navigation:                     │ ← Level 1: Global
+│ [Workspaces] [Users] [Billing] [Settings]       │
+├─────────────────────────────────────────────────┤
+│ Workspace: Acme Inc ▼ | [Projects] [Reports]   │ ← Level 2: Context
+├─────────────────────────────────────────────────┤
+│ ← Back to Projects | Project Alpha: Overview ▼ │ ← Level 3: Detail
+│ [Overview] [Tasks] [Files] [Activity]           │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ [Main Content Area]                             │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+### Breadcrumb Navigation
+- Show hierarchical path: `Workspaces › Acme Inc › Project Alpha › Task #123`
+- Each level clickable (quick navigation up the hierarchy)
+- Collapse middle levels if too long: `Workspaces › ... › Task #123`
+
+## Enterprise Forms & Validation
+
+### Complex Form Patterns
+| Pattern | Use Case | UX Benefit |
+|---------|----------|------------|
+| Wizard (Multi-Step) | User onboarding, long forms | Reduced cognitive load |
+| Accordion | Grouped settings (expand on demand) | Scannability |
+| Tabs | Distinct sections (Profile, Security, Notifications) | Organized |
+| Modal | Quick edits without leaving page | Context preservation |
+
+### Validation Strategy (Enterprise)
+- **Client-Side**: Immediate feedback (format, required fields)
+- **Server-Side**: Business rules (duplicate check, quota limits)
+- **Debounced**: Validate on blur or 500ms after typing (not every keystroke)
+- **Async Validation**: Username availability check (loading state)
+
+### Error Handling UI
+```
+┌───────────────────────────────────┐
+│ ⚠️ Unable to Save Changes         │ ← Clear headline
+│                                   │
+│ The following issues need to be   │
+│ fixed before saving:              │
+│                                   │
+│ • Email address is already in use │ ← Specific errors
+│   [Change email]                  │ ← Quick action
+│                                   │
+│ • Phone number format invalid     │
+│   Expected: +1 (555) 123-4567     │ ← Example format
+│                                   │
+│ [Try Again] [Cancel]              │
+└───────────────────────────────────┘
+```
+
+## Audit Trail UI
+
+### Audit Log Display
+| Timestamp | User | Action | Resource | Details | IP Address |
+|-----------|------|--------|----------|---------|------------|
+| 2024-01-15 14:32 | Alice | Updated | Project Alpha | Changed status: Draft → Active | 192.168.1.1 |
+| 2024-01-15 14:30 | Bob | Deleted | File: report.pdf | Permanent deletion | 192.168.1.2 |
+
+**Filters**: Date range, user, action type, resource type
+**Export**: CSV for compliance audits
+
+## Enterprise User Stories
+
+**US-ENT-UX-001: Customizable Dashboard**
+As an executive
+I want to customize my dashboard with relevant KPIs
+So that I see what matters most at a glance
+
+**Acceptance Criteria:**
+- [ ] "Add Widget" button opens widget library
+- [ ] Drag-and-drop to reorder widgets
+- [ ] Resize widgets (small, medium, large)
+- [ ] Save layout per user (not global)
+- [ ] "Reset to Default" option
+
+**US-ENT-UX-002: Bulk Operations with Undo**
+As an admin managing 1000+ users
+I want bulk actions with easy undo
+So that I can work efficiently without fear of mistakes
+
+**Acceptance Criteria:**
+- [ ] Select multiple rows (checkbox, Shift+click for range)
+- [ ] Bulk actions menu: "Change Role", "Deactivate", "Export"
+- [ ] Confirmation dialog with count: "Deactivate 47 users?"
+- [ ] Success toast with undo: "47 users deactivated. [Undo]"
+- [ ] Undo available for 30 seconds
+
+**US-ENT-UX-003: Advanced Filtering & Saved Views**
+As a data analyst filtering complex datasets
+I want to save filter combinations for reuse
+So that I don't recreate common queries
+
+**Acceptance Criteria:**
+- [ ] Filter bar with 10+ filter types (date, dropdown, text, multi-select)
+- [ ] "Save View" button creates named filter set
+- [ ] "Views" dropdown to switch between saved views
+- [ ] Share views with team (URL or save to workspace)
+- [ ] Default view per user
+
+## ENTERPRISE DESIGN SYSTEM GOVERNANCE
+
+Create .jules/ux/enterprise-design-governance.md:
+
+```markdown
+# Enterprise Design System Governance
+
+## Component Approval Process
+1. **Proposal**: Designer creates RFC with Figma mockup + use case
+2. **Review**: Design System Council (weekly meeting)
+3. **Approval Criteria**:
+   - Solves a problem for 3+ teams
+   - No existing component can be extended
+   - Meets accessibility standards
+   - Has clear documentation plan
+4. **Build**: Assigned to frontend team
+5. **Release**: Beta → Stable (1 quarter)
+
+## Breaking Change Policy
+- **Major Version**: Breaking changes allowed (e.g., v2 → v3)
+- **Minor Version**: New features, backward compatible
+- **Patch Version**: Bug fixes only
+- **Deprecation Notice**: 2 major versions (6 months min)
+
+## Design Tokens Management
+- Tokens stored in JSON, versioned in Git
+- Automated: JSON → CSS variables, SCSS, JS
+- Tokens consumed by all platforms (Web, iOS, Android)
+```
+
+## FINAL DIRECTIVE FOR ENTERPRISE UX
+
+You are the UX authority for enterprise applications. Your designs must:
+- **Scale**: Work for 1 user or 100K users
+- **Empower**: Surface data, enable decisions, don't overwhelm
+- **Accessible**: WCAG 2.1 AA minimum, AAA where feasible
+- **Intuitive**: Discoverability without training (progressive disclosure for power features)
+- **Performant**: Fast even with massive datasets (virtualization, pagination, caching)
+
+Every enterprise UX decision must answer: "Would this work for a user managing 10K records? Would this work for someone with low vision using a screen reader? Would this delight a power user while not confusing a novice?"
+
+Your success = users accomplish complex workflows with confidence, speed, and satisfaction.
