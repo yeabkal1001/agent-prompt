@@ -533,12 +533,26 @@ if [ -f .jules/pm/project-classification.md ]; then
   PROJECT_TYPE=$(grep "Primary Type:" .jules/pm/project-classification.md | cut -d: -f2 | xargs)
   echo "Detected project type: $PROJECT_TYPE"
 else
-  # Fallback: analyze project characteristics
-  grep -rE "microservice|kubernetes|distributed" .jules/ && echo "Complex Web"
-  grep -rE "mobile|ios|android|native" .jules/ && echo "Mobile"
-  grep -rE "ecommerce|payment|cart|checkout" .jules/ && echo "E-Commerce"
-  grep -rE "i18n|localization|multi-language" .jules/ && echo "I18n"
-  grep -rE "enterprise|sso|compliance|audit" .jules/ && echo "Enterprise"
+  # Fallback: analyze project characteristics (score-based)
+  COMPLEX_WEB=$(grep -rE "microservice|kubernetes|distributed" .jules/ 2>/dev/null | wc -l)
+  MOBILE=$(grep -rE "mobile|ios|android|native" .jules/ 2>/dev/null | wc -l)
+  ECOMMERCE=$(grep -rE "ecommerce|payment|cart|checkout" .jules/ 2>/dev/null | wc -l)
+  I18N=$(grep -rE "i18n|localization|multi-language" .jules/ 2>/dev/null | wc -l)
+  ENTERPRISE=$(grep -rE "enterprise|sso|compliance|audit" .jules/ 2>/dev/null | wc -l)
+  
+  # Determine primary (highest score)
+  PROJECT_TYPE="Standard"
+  MAX=$COMPLEX_WEB; [ $MOBILE -gt $MAX ] && PROJECT_TYPE="Large Mobile" && MAX=$MOBILE
+  [ $ECOMMERCE -gt $MAX ] && PROJECT_TYPE="E-Commerce" && MAX=$ECOMMERCE
+  [ $I18N -gt $MAX ] && PROJECT_TYPE="I18n" && MAX=$I18N
+  [ $ENTERPRISE -gt $MAX ] && PROJECT_TYPE="Enterprise"
+  
+  echo "Detected project type: $PROJECT_TYPE (Score: $MAX, fallback detection)"
+  
+  # Trigger PM to create classification if missing
+  if [ ! -f .jules/pm/project-classification.md ]; then
+    echo "WARNING: .jules/pm/project-classification.md missing. PM should create this file."
+  fi
 fi
 ```
 
@@ -591,7 +605,7 @@ Create .jules/qa/complex-web-testing.md:
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-export let options = {
+export const options = {
   stages: [
     { duration: '10m', target: 100000 }, // Ramp-up to 100K users
     { duration: '1h', target: 100000 },  // Hold 100K for 1 hour
@@ -1203,8 +1217,9 @@ And I can retry payment
 grep -rE '4[0-9]{12}(?:[0-9]{3})?' /var/log/app/ 
 # Expected: No matches found
 
-# Test: Search database for card patterns
-SELECT * FROM orders WHERE card_number ~ '4[0-9]{15}';
+# Test: Search database for card patterns (comprehensive: all card types)
+SELECT * FROM orders WHERE card_number ~ '\b[0-9]{13,19}\b';
+# Matches: Visa (16), Mastercard (16), Amex (15), Discover (16), Diners (14-16)
 # Expected: Empty result (only tokens stored)
 ```
 
@@ -1732,8 +1747,12 @@ if [ ! -f "$BACKUP_DIR/db_backup_$TODAY.sql.gz" ]; then
   exit 1
 fi
 
-# Verify backup is not empty
-SIZE=$(stat -f%z "$BACKUP_DIR/db_backup_$TODAY.sql.gz")
+# Verify backup is not empty (portable: detect OS)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  SIZE=$(stat -f%z "$BACKUP_DIR/db_backup_$TODAY.sql.gz")  # macOS/BSD
+else
+  SIZE=$(stat -c%s "$BACKUP_DIR/db_backup_$TODAY.sql.gz")  # Linux/GNU
+fi
 if [ $SIZE -lt 1000000 ]; then  # <1MB suspiciously small
   echo "FAIL: Backup file too small ($SIZE bytes)"
   exit 1

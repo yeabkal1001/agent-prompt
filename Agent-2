@@ -429,21 +429,23 @@ Append to .jules/agent-runs.log:
 **Run ONCE on first execution after product vision:** Detect project type from .jules/app-idea.md and .jules/pm/product-vision.md
 
 ```bash
-# Analyze project characteristics
-cat .jules/app-idea.md .jules/pm/product-vision.md | grep -iE "microservice|distributed|scale|million|users|traffic|api gateway|kubernetes"
-# Score: Complex Web
+# Score each project type (count keyword matches)
+COMPLEX_WEB=$(cat .jules/app-idea.md .jules/pm/product-vision.md | grep -ioE "microservice|distributed|scale|million|users|traffic|api gateway|kubernetes" | wc -l)
+MOBILE=$(cat .jules/app-idea.md .jules/pm/product-vision.md | grep -ioE "mobile|ios|android|app store|push notification|offline|native|react native|flutter" | wc -l)
+ECOMMERCE=$(cat .jules/app-idea.md .jules/pm/product-vision.md | grep -ioE "ecommerce|e-commerce|shopping|cart|checkout|payment|product catalog|inventory|marketplace|stripe|shopify" | wc -l)
+I18N=$(cat .jules/app-idea.md .jules/pm/product-vision.md | grep -ioE "i18n|international|localization|translation|multi-language|rtl|locale|global|regions|currencies" | wc -l)
+ENTERPRISE=$(cat .jules/app-idea.md .jules/pm/product-vision.md | grep -ioE "enterprise|b2b|sso|saml|compliance|soc 2|hipaa|gdpr|audit|multi-tenant|rbac|admin" | wc -l)
 
-cat .jules/app-idea.md .jules/pm/product-vision.md | grep -iE "mobile|ios|android|app store|push notification|offline|native|react native|flutter"
-# Score: Large Mobile
+# Determine primary type (highest score)
+PRIMARY="Standard"
+MAX_SCORE=0
+[ $COMPLEX_WEB -gt $MAX_SCORE ] && PRIMARY="Complex Web" && MAX_SCORE=$COMPLEX_WEB
+[ $MOBILE -gt $MAX_SCORE ] && PRIMARY="Large Mobile" && MAX_SCORE=$MOBILE
+[ $ECOMMERCE -gt $MAX_SCORE ] && PRIMARY="E-Commerce" && MAX_SCORE=$ECOMMERCE
+[ $I18N -gt $MAX_SCORE ] && PRIMARY="I18n" && MAX_SCORE=$I18N
+[ $ENTERPRISE -gt $MAX_SCORE ] && PRIMARY="Enterprise" && MAX_SCORE=$ENTERPRISE
 
-cat .jules/app-idea.md .jules/pm/product-vision.md | grep -iE "ecommerce|e-commerce|shopping|cart|checkout|payment|product catalog|inventory|marketplace|stripe|shopify"
-# Score: E-Commerce
-
-cat .jules/app-idea.md .jules/pm/product-vision.md | grep -iE "i18n|international|localization|translation|multi-language|rtl|locale|global|regions|currencies"
-# Score: I18n
-
-cat .jules/app-idea.md .jules/pm/product-vision.md | grep -iE "enterprise|b2b|sso|saml|compliance|soc 2|hipaa|gdpr|audit|multi-tenant|rbac|admin"
-# Score: Enterprise
+echo "Primary Type: $PRIMARY (Score: $MAX_SCORE)"
 ```
 
 Document detection in .jules/pm/project-classification.md:
@@ -508,8 +510,8 @@ Create .jules/pm/technical-debt-register.md:
 
 | Debt ID | Type | Impact | Effort | Business Case | Priority | Quarter |
 |---------|------|--------|--------|--------------|----------|---------|
-| TD-001 | Type 1 | Blocks checkout v2 | 2 weeks | $500K revenue | P0 | Q1 |
-| TD-002 | Type 2 | Search latency +300ms | 1 week | 15% bounce rate | P1 | Q1 |
+| TD-001 | Type 1 | Blocks checkout v2 | 2 weeks | $500K revenue | P0 | Q1 2024 |
+| TD-002 | Type 2 | Search latency +300ms | 1 week | 15% bounce rate | P1 | Q1 2024 |
 
 #### Product Roadmap with Technical Debt Integration
 

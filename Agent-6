@@ -611,14 +611,24 @@ Append to .jules/agent-runs.log:
 ```bash
 # Detect project type from PM's classification
 if [ -f .jules/pm/project-classification.md ]; then
-  cat .jules/pm/project-classification.md
+  PROJECT_TYPE=$(grep "Primary Type:" .jules/pm/project-classification.md | cut -d: -f2 | xargs)
+  echo "Detected project type: $PROJECT_TYPE"
 else
-  # Fallback: analyze project characteristics
-  grep -rE "microservice|api gateway|distributed" .jules/ && echo "Complex Web detected"
-  grep -rE "mobile|ios|android|native" .jules/ && echo "Mobile detected"
-  grep -rE "ecommerce|shopping|cart|payment" .jules/ && echo "E-Commerce detected"
-  grep -rE "i18n|international|localization|rtl" .jules/ && echo "I18n detected"
-  grep -rE "enterprise|sso|compliance|multi-tenant" .jules/ && echo "Enterprise detected"
+  # Fallback: analyze project characteristics (score-based)
+  COMPLEX_WEB=$(grep -rE "microservice|api gateway|distributed" .jules/ | wc -l)
+  MOBILE=$(grep -rE "mobile|ios|android|native" .jules/ | wc -l)
+  ECOMMERCE=$(grep -rE "ecommerce|shopping|cart|payment" .jules/ | wc -l)
+  I18N=$(grep -rE "i18n|international|localization|rtl" .jules/ | wc -l)
+  ENTERPRISE=$(grep -rE "enterprise|sso|compliance|multi-tenant" .jules/ | wc -l)
+  
+  # Determine primary (highest score)
+  PROJECT_TYPE="Standard"
+  MAX=$COMPLEX_WEB; [ $MOBILE -gt $MAX ] && PROJECT_TYPE="Large Mobile" && MAX=$MOBILE
+  [ $ECOMMERCE -gt $MAX ] && PROJECT_TYPE="E-Commerce" && MAX=$ECOMMERCE
+  [ $I18N -gt $MAX ] && PROJECT_TYPE="I18n" && MAX=$I18N
+  [ $ENTERPRISE -gt $MAX ] && PROJECT_TYPE="Enterprise"
+  
+  echo "Detected project type: $PROJECT_TYPE (fallback detection)"
 fi
 ```
 
@@ -650,11 +660,11 @@ A living, scalable system supporting 50+ teams, 200+ components, 10+ micro-front
 {
   "color": {
     "blue": {
-      "50": "#eff6ff",
-      "100": "#dbeafe",
-      "500": "#3b82f6",
-      "600": "#2563eb",
-      "900": "#1e3a8a"
+      "blue-50": "#eff6ff",
+      "blue-100": "#dbeafe",
+      "blue-500": "#3b82f6",
+      "blue-600": "#2563eb",
+      "blue-900": "#1e3a8a"
     }
   },
   "spacing": {
@@ -1234,10 +1244,12 @@ Create .jules/ux/i18n-ux-strategy.md:
 
 ### RTL Implementation (CSS)
 ```css
-/* Automatic RTL with logical properties */
+/* Automatic RTL with logical properties (IE11+: fallback required) */
 .container {
-  padding-inline-start: 16px;  /* Start edge (left LTR, right RTL) */
-  padding-inline-end: 16px;    /* End edge */
+  padding-left: 16px;           /* Fallback for older browsers */
+  padding-right: 16px;
+  padding-inline-start: 16px;   /* Modern: Start edge (left LTR, right RTL) */
+  padding-inline-end: 16px;     /* Modern: End edge */
   margin-inline-start: auto;
 }
 
@@ -1324,7 +1336,7 @@ Create .jules/ux/i18n-ux-strategy.md:
 | en-GB | DD/MM/YYYY | 24-hour | Monday |
 | de-DE | DD.MM.YYYY | 24-hour | Monday |
 | ja-JP | YYYY/MM/DD | 24-hour | Sunday |
-| ar-SA | DD/MM/YYYY | 12-hour (AM/PM, Arabic numerals) | Saturday |
+| ar-SA | DD/MM/YYYY | 12-hour (AM/PM, use Eastern Arabic numerals: ١٢:٣٠ or Western 0-9) | Saturday |
 
 **Implementation**: Use `Intl.DateTimeFormat` for automatic localization
 ```javascript
