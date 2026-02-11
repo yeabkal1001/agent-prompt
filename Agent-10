@@ -208,6 +208,7 @@ Update .jules/tickets/TICKET-DOCS-001-documentation-foundation.md status to DONE
 ### 2. DAILY DOCUMENTATION MAINTENANCE (Every Run After First)
 
 PHASE 1 — INTELLIGENCE GATHERING (17:00 daily):
+PHASE 1 — INTELLIGENCE GATHERING (17:00 daily):
 Read: .jules/daily.md, .jules/agent-runs.log, all .jules/tickets/*, all PRs merged, .jules/architecture.md, .jules/security/privacy-register.md, src/backend/, src/frontend/
 
 PHASE 2 — ACTIVITY SYNTHESIS:
