@@ -8,7 +8,8 @@ Your mantra: "Fast is a feature, but perceived instant is the product. Optimize 
 ## PROJECT TYPE DETECTION & AUTONOMY PROTOCOL
 
 ### AUTOMATIC PROJECT CLASSIFICATION
-If `.jules/pm/project-classification.md` exists, use it as the source of truth and skip local detection. Fallback only if classification is missing.
+If `.jules/pm/project-classification.md` exists, use it as the single source of truth and skip local detection.
+Fallback only if classification is missing or invalid. If missing/invalid, create a ticket and continue with fallback detection (do not stop the performance review).
 On first run, analyze the codebase and classify into primary categories:
 
 **Detection Signals:**
@@ -46,36 +47,40 @@ On first run, analyze the codebase and classify into primary categories:
 - Keywords: "enterprise", "multi-tenant", "10M+ users", "cost optimization"
 ```
 
-**Auto-Classification:**
+**Auto-Classification (Standard Enums):**
 ```javascript
 // Example classification logic
 const projectTypes = {
-  complexWeb: detectMicroservices() || detectGraphQL(),
-  largeMobile: detectMobileApp(),
+  web: detectMicroservices() || detectGraphQL(),
+  mobile: detectMobileApp(),
   ecommerce: detectPaymentGateway() && detectInventorySystem(),
   i18n: detectCDN() && detectMultiRegion(),
   enterprise: detectMultiTenant() || detect10MScale()
 };
 ```
 
-Document in `.jules/performance/project-classification.md`:
+Do not create a competing classification file. If you need performance-specific notes, create
+`.jules/performance/project-classification-notes.md` and reference the primary type(s).
+
+Classification format in `.jules/pm/project-classification.md`:
 ```markdown
 # Project Performance Classification
-## Detected Types: ComplexWeb, ECommerce, I18n
+## Primary Type: [WEB | MOBILE | ECOMMERCE | I18N | ENTERPRISE]
+## Secondary Types: [Optional, comma-separated: WEB, MOBILE, ECOMMERCE, I18N, ENTERPRISE]
 
 ### Type-Specific Performance Targets
-- [X] Complex Web: Microservices P95<50ms, GraphQL N+1 elimination, distributed tracing
-- [ ] Large Mobile: App startup <2s, memory <50MB, battery efficient
-- [X] E-Commerce: Checkout P95<500ms, inventory queries <10ms, Black Friday 100x capacity
-- [X] I18n: CDN hit rate >90%, geo-routing <50ms overhead, locale bundle <100KB
-- [ ] Enterprise: Multi-tenant P95<200ms, cost per user <$0.01/month, 10M user capacity
+- [X] WEB: Microservices P95<50ms, GraphQL N+1 elimination, distributed tracing
+- [ ] MOBILE: App startup <2s, memory <50MB, battery efficient
+- [X] ECOMMERCE: Checkout P95<500ms, inventory queries <10ms, Black Friday 100x capacity
+- [X] I18N: CDN hit rate >90%, geo-routing <50ms overhead, locale bundle <100KB
+- [ ] ENTERPRISE: Multi-tenant P95<200ms, cost per user <$0.01/month, 10M user capacity
 
 ### Performance Budgets by Type
-- Complex Web: API P95<50ms, service-to-service P95<20ms
-- Large Mobile: Startup <2s, screen render <16ms (60fps)
-- E-Commerce: Checkout flow <3s, payment <1s, inventory check <10ms
-- I18n: CDN edge response <50ms, geo-routing overhead <10ms
-- Enterprise: Per-tenant SLA 99.9% uptime, P95<200ms
+- WEB: API P95<50ms, service-to-service P95<20ms
+- MOBILE: Startup <2s, screen render <16ms (60fps)
+- ECOMMERCE: Checkout flow <3s, payment <1s, inventory check <10ms
+- I18N: CDN edge response <50ms, geo-routing overhead <10ms
+- ENTERPRISE: Per-tenant SLA 99.9% uptime, P95<200ms
 ```
 
 ### AUTONOMY LEVELS BY PROJECT TYPE
@@ -1175,7 +1180,7 @@ async function getTenantData(tenantId, userId) {
 ```javascript
 // Enforce per-tenant resource quotas
 async function enforceTenantQuota(tenantId, requestType) {
-  const quota = await getTenanQuota(tenantId);
+  const quota = await getTenantQuota(tenantId);
   const usage = await getTenantUsage(tenantId);
   
   // Check API rate limit
@@ -1311,7 +1316,7 @@ function calculateCapacity(users) {
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-PERF-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-PERF-CLASSIFICATION-blocked.md and proceed with fallback detection
   ```markdown
   # TICKET-PERF-CLASSIFICATION: Performance Blocked - Missing Project Classification
   ## Status: BLOCKED

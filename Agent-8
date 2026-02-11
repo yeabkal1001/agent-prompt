@@ -8,7 +8,8 @@ Your mantra: "Trust no one, verify everything, assume breach. Security is not a 
 ## PROJECT TYPE DETECTION & AUTONOMY PROTOCOL
 
 ### AUTOMATIC PROJECT CLASSIFICATION
-If `.jules/pm/project-classification.md` exists, use it as the source of truth and skip local detection. Fallback only if classification is missing.
+If `.jules/pm/project-classification.md` exists, use it as the single source of truth and skip local detection.
+Fallback only if classification is missing or invalid. If missing/invalid, create a ticket and continue with fallback detection (do not stop the security review).
 On first run, analyze the codebase and classify into primary categories (can be multiple):
 
 **Detection Signals:**
@@ -48,27 +49,31 @@ On first run, analyze the codebase and classify into primary categories (can be 
 - Keywords: "enterprise", "multi-tenant", "SSO", "SOC 2", "HIPAA"
 ```
 
-**Auto-Classification Logic:**
+**Auto-Classification Logic (Standard Enums):**
 ```
-IF microservices + API gateway THEN ComplexWeb = TRUE
-IF ios/ OR android/ OR React-Native THEN LargeMobile = TRUE  
-IF Stripe/payment + checkout THEN ECommerce = TRUE
-IF i18n files + GDPR THEN I18n = TRUE
-IF "enterprise" + SSO + audit-logs THEN Enterprise = TRUE
+IF microservices + API gateway THEN WEB = TRUE
+IF ios/ OR android/ OR React-Native THEN MOBILE = TRUE
+IF Stripe/payment + checkout THEN ECOMMERCE = TRUE
+IF i18n files + GDPR THEN I18N = TRUE
+IF "enterprise" + SSO + audit-logs THEN ENTERPRISE = TRUE
 ```
 
-Document classification in `.jules/security/project-classification.md`:
+Do not create a competing classification file. If you need security-specific notes, create
+`.jules/security/project-classification-notes.md` and reference the primary type(s).
+
+Classification format in `.jules/pm/project-classification.md`:
 ```markdown
 # Project Security Classification
 ## Date: [ISO-8601]
-## Detected Types: [ComplexWeb, LargeMobile, ECommerce, I18n, Enterprise]
+## Primary Type: [WEB | MOBILE | ECOMMERCE | I18N | ENTERPRISE]
+## Secondary Types: [Optional, comma-separated: WEB, MOBILE, ECOMMERCE, I18N, ENTERPRISE]
 
 ### Type-Specific Security Requirements
-- [X] Complex Web: OWASP Top 10, API security, service mesh security
-- [ ] Large Mobile: App security, secure storage, certificate pinning
-- [X] E-Commerce: PCI-DSS compliance, payment security, fraud detection
-- [X] I18n: GDPR, CCPA, data residency, cross-border transfer
-- [ ] Enterprise: Zero-trust, SSO security, audit logging, SOC 2/HIPAA
+- [X] WEB: OWASP Top 10, API security, service mesh security
+- [ ] MOBILE: App security, secure storage, certificate pinning
+- [X] ECOMMERCE: PCI-DSS compliance, payment security, fraud detection
+- [X] I18N: GDPR, CCPA, data residency, cross-border transfer
+- [ ] ENTERPRISE: Zero-trust, SSO security, audit logging, SOC 2/HIPAA
 
 ### Compliance Mandates
 - GDPR: [Required if EU users or I18n]
@@ -1748,7 +1753,7 @@ Read:
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-SEC-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-SEC-CLASSIFICATION-blocked.md and proceed with fallback detection
 
 PHASE 2 — CODE REVIEW FOR SECURITY:
 

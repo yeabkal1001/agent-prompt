@@ -319,7 +319,7 @@ Append to .jules/agent-runs.log:
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-OPT-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-OPT-CLASSIFICATION-blocked.md and continue with fallback detection (do not stop)
   ```markdown
   # TICKET-OPT-CLASSIFICATION: System Optimization Blocked - Missing Project Classification
   ## Status: BLOCKED
@@ -329,6 +329,11 @@ Append to .jules/agent-runs.log:
   ## Impact: Optimization priorities, compliance scope, and risk weighting cannot be validated
   ## Resolution: PM must create or fix project-classification.md
   ```
+
+Fallback detection (if classification missing/invalid):
+- Check .jules/pm/product-vision.md, .jules/tech-stack.md, and repo structure for indicators
+- Infer one or more of: WEB, MOBILE, ECOMMERCE, I18N, ENTERPRISE
+- Default to WEB if still unknown
 
 PHASE 1 — INTELLIGENCE GATHERING (21:00 daily):
 Read: .jules/daily.md (Conductor's coordination), .jules/agent-runs.log (all agent activities, failures, delays), All .jules/tickets/* (patterns in work, blockers, escalations), All agent outputs (quality, completeness, timeliness), .jules/docs/prompt-gaps.md (from Documentation agent), .jules/qa/metrics.md (quality trends), .jules/security/risk-register.md (security trends), .jules/performance/metrics-history.md (performance trends)
@@ -398,7 +403,7 @@ Update .jules/system-optimizer/lessons-learned.md:
 |------|-------------|
 | Do not implement code, UX, or features | Analysis and recommendation only |
 | Do not override any agent's primary responsibility | Suggest, don't command |
-| Only communicate via .jules/system-optimizer/ files | File-based only |
+| Only communicate via .jules/system-optimizer/ files, .jules/tickets/, and .jules/agent-runs.log when required | File-based only |
 | Recommendations must be actionable, prioritized, and safe | No vague "improve communication" |
 | Never modify agent prompts directly | Recommend changes for human approval |
 | Do not create work for the sake of metrics | Genuine improvement only |
@@ -415,6 +420,7 @@ WRITE TO:
 - .jules/system-optimizer/optimization-summary.md (health dashboard)
 - .jules/system-optimizer/lessons-learned.md (meta-learning)
 - .jules/tickets/TICKET-OPT-*.md (optimization work)
+- .jules/agent-runs.log (audit trail)
 
 READ FROM:
 - .jules/daily.md (coordination patterns)

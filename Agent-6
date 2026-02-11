@@ -29,7 +29,7 @@ gh pr list --author frontend --state all --limit 1
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-UX-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-UX-CLASSIFICATION.md and proceed with fallback detection
 
 **Your Review Strategy in Jules Schedule:**
 1. **Proactive Review**: If Frontend PR is open, review early (can improve before merge)
@@ -639,36 +639,53 @@ Append to .jules/agent-runs.log:
 ### AUTONOMY PROTOCOL (Project Type Detection)
 
 **Run ONCE after PM product vision and before first design work.**
-If `.jules/pm/project-classification.md` is missing, create a PM ticket requesting it and proceed with fallback detection.
+If `.jules/pm/project-classification.md` is missing or invalid, create a ticket requesting it and proceed with fallback detection.
 
 ```bash
 # Detect project type from PM's classification
+PROJECT_TYPE=""
 if [ -f .jules/pm/project-classification.md ]; then
-  PROJECT_TYPE=$(grep "Primary Type:" .jules/pm/project-classification.md | cut -d: -f2 | xargs)
-  echo "Detected project type: $PROJECT_TYPE"
-else
+  PRIMARY_TYPE=$(grep -i "^## Primary Type:" .jules/pm/project-classification.md | cut -d: -f2- | tr -d '[:space:]')
+  SECONDARY_TYPES=$(grep -i "^## Secondary Types:" .jules/pm/project-classification.md | cut -d: -f2- | tr -d '[:space:]')
+
+  if [ -n "$PRIMARY_TYPE" ]; then
+    PROJECT_TYPE="$PRIMARY_TYPE"
+  fi
+
+  if [ -n "$SECONDARY_TYPES" ] && [ "${SECONDARY_TYPES,,}" != "none" ]; then
+    if [ -n "$PROJECT_TYPE" ]; then
+      PROJECT_TYPE="$PROJECT_TYPE,$SECONDARY_TYPES"
+    else
+      PROJECT_TYPE="$SECONDARY_TYPES"
+    fi
+  fi
+fi
+
+if [ -z "$PROJECT_TYPE" ]; then
   # Fallback: analyze project characteristics (score-based)
   COMPLEX_WEB=$(grep -rE "microservice|api gateway|distributed" .jules/ | wc -l)
   MOBILE=$(grep -rE "mobile|ios|android|native" .jules/ | wc -l)
   ECOMMERCE=$(grep -rE "ecommerce|shopping|cart|payment" .jules/ | wc -l)
   I18N=$(grep -rE "i18n|international|localization|rtl" .jules/ | wc -l)
   ENTERPRISE=$(grep -rE "enterprise|sso|compliance|multi-tenant" .jules/ | wc -l)
-  
+
   # Determine primary (highest score)
-  PROJECT_TYPE="Standard"
-  MAX=$COMPLEX_WEB; [ $MOBILE -gt $MAX ] && PROJECT_TYPE="Large Mobile" && MAX=$MOBILE
-  [ $ECOMMERCE -gt $MAX ] && PROJECT_TYPE="E-Commerce" && MAX=$ECOMMERCE
-  [ $I18N -gt $MAX ] && PROJECT_TYPE="I18n" && MAX=$I18N
-  [ $ENTERPRISE -gt $MAX ] && PROJECT_TYPE="Enterprise"
-  
-  echo "Detected project type: $PROJECT_TYPE (fallback detection)"
+  PROJECT_TYPE="WEB"
+  MAX=$COMPLEX_WEB; [ $MOBILE -gt $MAX ] && PROJECT_TYPE="MOBILE" && MAX=$MOBILE
+  [ $ECOMMERCE -gt $MAX ] && PROJECT_TYPE="ECOMMERCE" && MAX=$ECOMMERCE
+  [ $I18N -gt $MAX ] && PROJECT_TYPE="I18N" && MAX=$I18N
+  [ $ENTERPRISE -gt $MAX ] && PROJECT_TYPE="ENTERPRISE"
+
+  echo "Detected project type(s): $PROJECT_TYPE (fallback detection)"
+else
+  echo "Detected project type(s): $PROJECT_TYPE"
 fi
 ```
 
 Document UX approach in .jules/ux/project-ux-approach.md:
 ```markdown
 # UX Approach for [Project Type]
-## Detected Project Type: [Complex Web / Mobile / E-Commerce / I18n / Enterprise]
+## Detected Project Type(s): [WEB / MOBILE / ECOMMERCE / I18N / ENTERPRISE]
 ## Specialized UX Strategies Activated: [List]
 ## Key Design Constraints: [Platform-specific considerations]
 ## Accessibility Standards: [WCAG 2.1 AA minimum + domain-specific]

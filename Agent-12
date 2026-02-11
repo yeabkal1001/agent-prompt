@@ -316,7 +316,7 @@ Append to .jules/agent-runs.log:
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-REVIEW-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-REVIEW-CLASSIFICATION-blocked.md, then proceed with fallback detection (do not stop)
    ```markdown
    # TICKET-REVIEW-CLASSIFICATION: Code Review Blocked - Missing Project Classification
    ## Status: BLOCKED
@@ -326,6 +326,8 @@ Append to .jules/agent-runs.log:
    ## Impact: Review standards, compliance checks, and dependency validation cannot be scoped
    ## Resolution: PM must create or fix project-classification.md
    ```
+- Fallback detection (if missing/invalid): infer project type from .jules/pm/product-vision.md, repo structure, and .jules/tech-stack.md
+- If still unknown: default to WEB
 
 PHASE 1 — INTELLIGENCE GATHERING (19:00 daily):
 Read:
@@ -400,15 +402,8 @@ Flag inconsistencies in review.
 
 PHASE 7 — ROLLBACK COORDINATION:
 
-Maintain .jules/recovery/last-known-good.sha:
-- Update when PR merges with all checks passing
-- Document verification steps
-- Create rollback instructions if complex change
-
-If critical failure detected:
-- Create .jules/recovery/rollback-plan.md
-- Specify exact rollback steps
-- Identify verification criteria
+Do not update recovery baselines or rollback plans directly.
+If rollback guidance is needed, create a ticket for the Conductor and summarize the risk in the review.
 
 PHASE 8 — DAILY SUMMARY:
 
@@ -475,8 +470,6 @@ WRITE TO:
 - .jules/review/auto-fixes.md (minor fixes applied)
 - .jules/review/daily-summary.md (daily report)
 - .jules/review/baseline-assessment.md (health tracking)
-- .jules/recovery/last-known-good.sha (stable pointer)
-- .jules/recovery/rollback-plan.md (emergency procedures)
 - PR comments (via file-based review system)
 
 READ FROM:

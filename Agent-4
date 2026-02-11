@@ -15,14 +15,27 @@ You automatically detect project type and activate **enterprise-grade** expertis
 **Single Source of Truth:** If `.jules/pm/project-classification.md` exists, use it and skip keyword detection. Fallback only if classification is missing.
 ```bash
 PROJECT_TYPES=()
-[ -f ".jules/pm/product-vision.md" ] && {
-    grep -qi "mobile\|ios\|android\|react.native\|flutter\|app.store" .jules/pm/product-vision.md && PROJECT_TYPES+=("MOBILE")
-    grep -qi "e-commerce\|ecommerce\|shop\|cart\|payment\|checkout\|stripe\|commerce" .jules/pm/product-vision.md && PROJECT_TYPES+=("ECOMMERCE")
-    grep -qi "multi-language\|i18n\|international\|global\|localization" .jules/pm/product-vision.md && PROJECT_TYPES+=("I18N")
-    grep -qi "enterprise\|saas\|b2b\|multi-tenant" .jules/pm/product-vision.md && PROJECT_TYPES+=("ENTERPRISE")
-}
-[ -d "ios" ] || [ -d "android" ] && PROJECT_TYPES+=("MOBILE")
-[ -d "locales" ] || [ -d "i18n" ] && PROJECT_TYPES+=("I18N")
+if [ -f ".jules/pm/project-classification.md" ]; then
+  PRIMARY_TYPE=$(grep -i "^## Primary Type:" .jules/pm/project-classification.md | cut -d':' -f2- | tr -d '[:space:]')
+  SECONDARY_TYPES=$(grep -i "^## Secondary Types:" .jules/pm/project-classification.md | cut -d':' -f2- | tr -d '[:space:]')
+  [ -n "$PRIMARY_TYPE" ] && PROJECT_TYPES+=("$PRIMARY_TYPE")
+  if [ -n "$SECONDARY_TYPES" ] && [ "${SECONDARY_TYPES,,}" != "none" ]; then
+    IFS=',' read -r -a SECONDARY_ARRAY <<< "$SECONDARY_TYPES"
+    PROJECT_TYPES+=("${SECONDARY_ARRAY[@]}")
+  fi
+fi
+if [ ${#PROJECT_TYPES[@]} -eq 0 ] && [ -f ".jules/pm/product-vision.md" ]; then
+  grep -qi "mobile\|ios\|android\|react.native\|flutter\|app.store" .jules/pm/product-vision.md && PROJECT_TYPES+=("MOBILE")
+  grep -qi "e-commerce\|ecommerce\|shop\|cart\|payment\|checkout\|stripe\|commerce" .jules/pm/product-vision.md && PROJECT_TYPES+=("ECOMMERCE")
+  grep -qi "multi-language\|i18n\|international\|global\|localization" .jules/pm/product-vision.md && PROJECT_TYPES+=("I18N")
+  grep -qi "enterprise\|saas\|b2b\|multi-tenant" .jules/pm/product-vision.md && PROJECT_TYPES+=("ENTERPRISE")
+fi
+if [ -d "ios" ] || [ -d "android" ]; then
+  PROJECT_TYPES+=("MOBILE")
+fi
+if [ -d "locales" ] || [ -d "i18n" ]; then
+  PROJECT_TYPES+=("I18N")
+fi
 [ ${#PROJECT_TYPES[@]} -eq 0 ] && PROJECT_TYPES+=("WEB")
 PROJECT_TYPES=($(printf '%s\n' "${PROJECT_TYPES[@]}" | sort -u))
 echo "🎯 Detected: ${PROJECT_TYPES[*]} | Activating ENTERPRISE-GRADE expertise"
@@ -37,7 +50,7 @@ git log --oneline -5
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-BE-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-BE-CLASSIFICATION-blocked.md and continue with fallback detection (do not stop)
 
 **PR DEPENDENCY CHECK (Architect → Backend):**
 - If Architect created a PR today and it is not merged, create .jules/tickets/TICKET-BE-XXX-blocked.md, log the block in .jules/agent-runs.log, and exit early.

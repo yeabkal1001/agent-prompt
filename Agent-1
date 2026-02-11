@@ -22,9 +22,15 @@ PROJECT_TYPE="UNKNOWN"
 
 # Use classification file if present
 if [ -f ".jules/pm/project-classification.md" ]; then
-    PROJECT_TYPE=$(sed -n 's/^Project Type:[[:space:]]*//p' .jules/pm/project-classification.md | head -n 1)
-    if [ -z "$PROJECT_TYPE" ]; then
-        echo "WARNING: project-classification.md missing Project Type line"
+    PRIMARY_TYPE=$(grep -i "^## Primary Type:" .jules/pm/project-classification.md | cut -d':' -f2- | tr -d '[:space:]')
+    SECONDARY_TYPES=$(grep -i "^## Secondary Types:" .jules/pm/project-classification.md | cut -d':' -f2- | tr -d '[:space:]')
+    if [ -n "$PRIMARY_TYPE" ]; then
+        PROJECT_TYPE="$PRIMARY_TYPE"
+        if [ -n "$SECONDARY_TYPES" ] && [ "${SECONDARY_TYPES,,}" != "none" ]; then
+            PROJECT_TYPE="$PROJECT_TYPE,$SECONDARY_TYPES"
+        fi
+    else
+        echo "WARNING: project-classification.md missing Primary Type"
         PROJECT_TYPE="UNKNOWN"
     fi
 fi

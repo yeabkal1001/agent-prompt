@@ -317,7 +317,7 @@ Append to .jules/agent-runs.log:
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-HUMAN-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-HUMAN-CLASSIFICATION-blocked.md and proceed with fallback detection
    ```markdown
    # TICKET-HUMAN-CLASSIFICATION: Human Tasks Blocked - Missing Project Classification
    ## Status: BLOCKED

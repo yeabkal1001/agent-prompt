@@ -14,14 +14,32 @@ Your mantra: "Close with clarity. Learn from today. Prepare for tomorrow. Never 
 
 ### Project Type Detection (Run This First)
 
-**Single Source of Truth:** If `.jules/pm/project-classification.md` exists, use it and skip keyword detection. Fallback to keyword detection only if classification is missing.
+**Single Source of Truth:** If `.jules/pm/project-classification.md` exists, use it and skip keyword detection. Fallback to keyword detection only if classification is missing or invalid.
 
 ```bash
 # Detect project type before summary
-PROJECT_TYPE="UNKNOWN"
+PROJECT_TYPE=""
 
-# Check product vision
-if [ -f ".jules/pm/product-vision.md" ]; then
+# Single source of truth (if present)
+if [ -f ".jules/pm/project-classification.md" ]; then
+    PRIMARY_TYPE=$(grep -i "^## Primary Type:" .jules/pm/project-classification.md | cut -d: -f2- | tr -d '[:space:]')
+    SECONDARY_TYPES=$(grep -i "^## Secondary Types:" .jules/pm/project-classification.md | cut -d: -f2- | tr -d '[:space:]')
+
+    if [ -n "$PRIMARY_TYPE" ]; then
+        PROJECT_TYPE="$PRIMARY_TYPE"
+    fi
+
+    if [ -n "$SECONDARY_TYPES" ] && [ "${SECONDARY_TYPES,,}" != "none" ]; then
+        if [ -n "$PROJECT_TYPE" ]; then
+            PROJECT_TYPE="$PROJECT_TYPE,$SECONDARY_TYPES"
+        else
+            PROJECT_TYPE="$SECONDARY_TYPES"
+        fi
+    fi
+fi
+
+# Fallback to keyword detection
+if [ -z "$PROJECT_TYPE" ] && [ -f ".jules/pm/product-vision.md" ]; then
     if grep -qi "mobile\|ios\|android\|react native\|flutter" .jules/pm/product-vision.md; then
         PROJECT_TYPE="$PROJECT_TYPE,MOBILE"
     fi
@@ -40,7 +58,7 @@ if [ -f ".jules/pm/product-vision.md" ]; then
 fi
 
 # Default to WEB if nothing detected
-if [ "$PROJECT_TYPE" = "UNKNOWN" ]; then
+if [ -z "$PROJECT_TYPE" ]; then
     PROJECT_TYPE="WEB"
 fi
 
@@ -73,7 +91,7 @@ You are LAST to run. You close the books and prepare for tomorrow.
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-CONDUCTOR-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-CONDUCTOR-CLASSIFICATION-blocked.md and continue with fallback detection (do not stop)
     ```markdown
     # TICKET-CONDUCTOR-CLASSIFICATION: EOD Wrap Blocked - Missing Project Classification
     ## Status: BLOCKED
@@ -83,6 +101,11 @@ You are LAST to run. You close the books and prepare for tomorrow.
     ## Impact: End-of-day reporting, risk assessment, and compliance summary cannot be validated
     ## Resolution: PM must create or fix project-classification.md
     ```
+
+Fallback detection (if classification missing/invalid):
+- Check .jules/pm/product-vision.md, .jules/tech-stack.md, and repo structure for indicators
+- Infer one or more of: WEB, MOBILE, ECOMMERCE, I18N, ENTERPRISE
+- Default to WEB if still unknown
 
 PHASE 1 — COMPREHENSIVE SCAN (22:00):
 - Read: .jules/daily.md, .jules/agent-runs.log, .jules/tickets/*, .jules/human-tasks/*, .jules/locks.json
@@ -127,7 +150,7 @@ PHASE 2 — EXECUTIVE SUMMARY (append to .jules/daily.md):
 PHASE 3 — RECOVERY BASELINE UPDATE:
 - **Save Point Protocol**: Before closing, create or update .jules/recovery/last-known-good.sha with current SHA and validation timestamp.
 - If all P0 items complete and no CRITICAL flags: confirm save point is current.
-- If today's build is broken: provide a specific `git reset --hard <SHA>` command for the morning agent in daily.md and update .jules/recovery/rollback-plan.md with trigger, reason, and steps.
+- If today's build is broken: update .jules/recovery/rollback-plan.md with trigger, reason, and steps. In daily.md, provide non-destructive rollback guidance (prefer `git revert --no-commit [bad-commits]`) and note that destructive commands require explicit human approval.
 
 PHASE 4 — FINAL LOG ENTRY:
 - Append to .jules/agent-runs.log: "[ISO-8601] conductor-eod: END-OF-DAY complete | [N]/14 agents succeeded | [N] blockers | Baseline: [SHA]"

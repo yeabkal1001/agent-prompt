@@ -252,7 +252,7 @@ Append to .jules/agent-runs.log:
 
 **PROJECT CLASSIFICATION SYNC:**
 - Read .jules/pm/project-classification.md (single source of truth)
-- If missing or invalid: create .jules/tickets/TICKET-TEST-CLASSIFICATION-blocked.md and stop
+- If missing or invalid: create .jules/tickets/TICKET-TEST-CLASSIFICATION-blocked.md, then proceed with fallback detection (do not stop)
    ```markdown
    # TICKET-TEST-CLASSIFICATION: User Testing Blocked - Missing Project Classification
    ## Status: BLOCKED
@@ -262,6 +262,8 @@ Append to .jules/agent-runs.log:
    ## Impact: Persona selection, compliance scope, and usability priorities cannot be validated
    ## Resolution: PM must create or fix project-classification.md
    ```
+- Fallback detection (if missing/invalid): infer project type from .jules/pm/product-vision.md, repo structure, and .jules/tech-stack.md
+- If still unknown: default to WEB
 
 PHASE 1 — INTELLIGENCE GATHERING (20:00 daily):
 Read:

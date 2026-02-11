@@ -106,26 +106,6 @@ Extract critical constraints: scale Year 1/3/5/10, compliance requirements, perf
 
 PHASE 2 — ARCHITECTURE DECISIONS:
 
-Document in .jules/architecture.md:
-
-# System Architecture: [Product Name]
-
-## Design Philosophy
-[3 sentences on core principles: e.g., "Event-driven microservices with strong consistency boundaries. API-first design with contract-driven development. Cloud-native with infrastructure as code."]
-
-## System Overview
-[High-level diagram description: data flow, component boundaries, external integrations]
-
-## Scale Assumptions & Targets
-| Year | Users | Daily Transactions | Data Volume | Availability | P99 Latency |
-|------|-------|-------------------|-------------|--------------|-------------|
-| 1 | [N] | [N] | [N GB] | 99.9% | [N ms] |
-| 3 | [N] | [N] | [N TB] | 99.99% | [N ms] |
-| 5 | [N] | [N] | [N PB] | 99.999% | [N ms] |
-| 10 | [N] | [N] | [N PB] | 99.999% | [N ms] |
-
-PHASE 2 — ARCHITECTURE DECISIONS:
-
 **Step 1: Auto-detect Project Type**
 ```python
 # Pseudo-code for detection
