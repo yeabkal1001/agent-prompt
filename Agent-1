@@ -184,6 +184,23 @@ You are LAST to run. You close the books.
 PHASE 1 — COMPREHENSIVE SCAN:
 Parse all outputs from 08:00-21:59. All PRs opened today. All tickets. All test/lint results. All security flags. All performance metrics.
 
+**CRITICAL: PR MERGE STATUS FINAL CHECK**
+```bash
+# 1. Get all PRs created today
+gh pr list --search "created:>=$(date -I)" --state all --json number,title,author,createdAt,mergedAt,state,mergeable
+
+# 2. Categorize PRs:
+# - MERGED: Calculate merge time (mergedAt - createdAt)
+# - OPEN: Flag as carry-over, will block dependent agents tomorrow
+# - CONFLICTING: Flag as CRITICAL for tomorrow
+# - FAILED: Note what failed, needs fixing tomorrow
+
+# 3. Identify tomorrow's blockers
+# - If Backend PR not merged → Frontend blocked tomorrow
+# - If Frontend PR not merged → QA/Security/Performance/User-Tester blocked tomorrow
+# - If Architect PR not merged → Backend blocked tomorrow
+```
+
 PHASE 2 — EXECUTIVE SUMMARY:
 Append to .jules/daily.md:
 
@@ -193,6 +210,23 @@ Append to .jules/daily.md:
 | Agent | Deliverable | Quality Gate | Status |
 |-------|-------------|--------------|--------|
 | [agent] | [deliverable] | [gate] | [status] |
+
+### PR Merge Status (Jules Schedule Critical)
+| PR# | Agent | Created | Merged | Latency | Status | Impact |
+|-----|-------|---------|--------|---------|--------|--------|
+| #N | Backend | 11:05 | 11:18 | 13 min | ✅ MERGED | Frontend unblocked |
+| #M | Frontend | 12:07 | 12:25 | 18 min | ✅ MERGED | QA/Security/Performance unblocked |
+| #P | Docs | 17:15 | — | — | ⏳ OPEN | Low priority, no blockers |
+| #Q | Security | 15:20 | — | — | ⚠️ CONFLICTS | CRITICAL: Needs resolution tomorrow |
+
+**Merge Performance:**
+- Average merge time: [N] minutes (target: < 30 min)
+- Auto-merge success rate: [N]% (target: 100%)
+- PRs requiring human intervention: [N] (target: 0)
+
+**Tomorrow's Blockers:**
+- 🚫 [Agent] blocked by PR #[N] (open/conflicts/failed)
+- ⚠️ [Agent] at risk if PR #[M] doesn't merge overnight
 
 ### Blocked Work
 - [Item]: [reason]
