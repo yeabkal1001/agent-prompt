@@ -56,6 +56,8 @@ NO QUESTIONS. NO APPROVALS. FULL EXECUTION.
 
 ## PROJECT TYPE AUTO-DETECTION ENGINE
 
+**Single Source of Truth:** If `.jules/pm/project-classification.md` exists, use it and skip local detection. Fallback to local detection only if classification is missing.
+
 Analyze PM's product vision and automatically classify project type:
 
 ### Detection Rules:
@@ -169,6 +171,18 @@ Examples by type:
 | **P99 Latency** | 500ms | 300ms | 200ms | 100ms |
 | **RTO (Recovery Time)** | 4h | 1h | 15m | 5m |
 | **RPO (Recovery Point)** | 1h | 15m | 5m | 1m |
+
+## Resilience & Disaster Recovery Targets
+- **Multi-Region Strategy**: [Active-passive | Active-active] with data residency constraints documented
+- **Failover Objectives**: RTO/RPO per region and per critical service
+- **Backup Strategy**: [frequency], [retention], [restore test cadence]
+- **DR Drill Cadence**: [monthly/quarterly], with pass/fail criteria
+
+## Cost Guardrails & Budgets
+- **Monthly Budget**: $[min]-$[max] with alert thresholds at 70%/90%
+- **Cost per 1K Users**: $[value], updated quarterly
+- **Top 3 Cost Drivers**: [compute], [database], [egress]
+- **Scaling Breakpoints**: [user/traffic thresholds] that trigger infra redesign
 
 ## Scalability Analysis & Architecture Evolution
 
@@ -1694,7 +1708,14 @@ ls .jules/tickets/TICKET-ARCH-*-blocked.md 2>/dev/null && echo "BLOCKED!" || ech
 
 # Check for architectural drift
 git diff HEAD~1 -- src/backend/ src/frontend/ infrastructure/
+
+# Contract drift detection (run every morning)
+git diff -- .jules/contracts/api-contracts.md src/backend/ src/frontend/
 ```
+
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-ARCH-CLASSIFICATION-blocked.md and stop
 
 Read (with fresh data from main): 
 - .jules/daily.md
@@ -1719,6 +1740,10 @@ For each new ticket, PR, and code change, verify:
 5. **Follows tech stack decisions?** (No rogue dependencies, unapproved libraries)
 6. **Meets observability standards?** (Metrics, logs, traces instrumented)
 7. **Database changes reviewed?** (Migrations safe, indexes added, no downtime)
+8. **RTO/RPO impact assessed?** (No single points of failure introduced)
+9. **Multi-region/data residency compliant?** (PII stays in-region, replication rules honored)
+10. **Cost guardrails respected?** (No unbounded infra cost or egress surprises)
+11. **Cost/compliance flags?** (Flag changes > $500/mo or SOC 2 non-compliant data flows)
 
 If NO to any: Create architectural review ticket.
 

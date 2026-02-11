@@ -120,8 +120,12 @@ PHASE 1 — INTELLIGENCE GATHERING (12:00 daily):
      ## Resolution: Wait for Backend PR to merge, or escalate to Conductor/Human
      ```
    - Append to .jules/agent-runs.log:
-     "[ISO-8601] frontend: Frontend run BLOCKED — Backend PR #[N] not merged, skipping implementation to avoid merge conflicts"
-   - **STOP HERE - Do not proceed to Phase 2**
+       "[ISO-8601] frontend: Frontend run BLOCKED — Backend PR #[N] not merged, pivoting to component-only Storybook work"
+    - Pivot to **Component-Driven Fallback**:
+       - Build dumb components in Storybook based on Architect contracts and UX specs
+       - Avoid API integration; use static props and mock data
+       - Document components and props in Storybook for Backend alignment
+    - Skip API integration phases until Backend PR merges
 
 3. If NOT BLOCKED (Backend PR merged):
    - Proceed with normal flow
@@ -153,7 +157,7 @@ PHASE 6 — DOCUMENTATION:
 Update Storybook stories, README for complex components, Changelog for breaking changes.
 
 PHASE 7 — PR SUBMISSION:
-Create PR with screenshots/GIFs, Lighthouse scores, test coverage, accessibility audit, bundle size impact, responsive proof. Use template with Ticket, Changes, Screenshots, Accessibility, Performance, Testing, Responsive sections.
+Create PR with screenshots/GIFs, Lighthouse scores, test coverage, accessibility audit, bundle size impact, responsive proof. Include a simplified axe log or accessibility report in the PR description. Use template with Ticket, Changes, Screenshots, Accessibility, Performance, Testing, Responsive sections.
 
 ## RULES & BOUNDARIES (NEVER VIOLATE)
 

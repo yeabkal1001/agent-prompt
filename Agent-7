@@ -29,6 +29,10 @@ gh pr list --author frontend --state open
 # If these return PRs → DO NOT PROCEED
 ```
 
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-QA-CLASSIFICATION-blocked.md and stop
+
 **Critical Dependency Logic:**
 - **Backend PR not merged** → You test old backend code → False test results
 - **Frontend PR not merged** → You test old frontend → Integration tests invalid
@@ -145,6 +149,18 @@ Shift-left: Tests written before or with implementation. Production-like environ
 - Integration tests: Test containers, isolated databases
 - E2E tests: Staging environment, seeded data, cleanup
 - Never use production data in tests
+
+## Cross-Browser & Device Matrix
+
+- **Desktop**: Chrome, Firefox, Safari, Edge (latest + previous)
+- **Mobile**: iOS Safari, Android Chrome (latest + previous)
+- **Accessibility**: Screen reader checks (NVDA/VoiceOver), keyboard-only navigation
+
+## Load/Stress/Chaos Triggers
+
+- **Load tests** on every P0/P1 backend change or SLA-critical endpoint change
+- **Stress tests** weekly or when scaling thresholds change
+- **Chaos tests** weekly or after infra changes (timeouts, dependency outages)
 
 ## CI/CD Integration
 
@@ -294,6 +310,9 @@ Read:
 PHASE 2 — TEST EXECUTION:
 
 Run all relevant tests:
+0. **Flakiness Protection**:
+  - If a test fails once, retry it 3 times.
+  - Only mark as BLOCKER if it fails all retries.
 1. **Unit Tests**: Fast feedback on logic changes
    - Backend: npm test (or equivalent)
    - Frontend: npm test (or equivalent)
@@ -311,6 +330,16 @@ Run all relevant tests:
 4. **Contract Tests**: API consumer/provider alignment
    - Verify Backend implementation matches contract
    - Verify Frontend consumes contract correctly
+  - Validate frontend-backend handshake flows end-to-end
+
+5. **Cross-Browser/Device Validation** (for UI changes)
+  - Smoke tests across matrix (desktop + mobile)
+  - Accessibility checks (keyboard + screen reader)
+
+6. **Load/Stress/Chaos** (when triggers met)
+  - Load: k6/Artillery on critical endpoints
+  - Stress: identify failure point + recovery behavior
+  - Chaos: inject dependency failures, verify graceful degradation
 
 Document results in .jules/qa/daily-reports/REPORT-[DATE].md:
 
@@ -526,6 +555,7 @@ Append to .jules/agent-runs.log:
 ### AUTONOMY PROTOCOL (Project Type Detection)
 
 **Run ONCE after architecture/tech-stack defined and before first test.**
+If `.jules/pm/project-classification.md` is missing, create a PM ticket requesting it and proceed with fallback detection.
 
 ```bash
 # Detect project type from PM's classification

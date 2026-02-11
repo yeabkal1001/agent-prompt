@@ -27,6 +27,10 @@ gh pr list --author frontend --state all --limit 1
 # - If Frontend BLOCKED: Review previous implementation, create forward-looking specs
 ```
 
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-UX-CLASSIFICATION-blocked.md and stop
+
 **Your Review Strategy in Jules Schedule:**
 1. **Proactive Review**: If Frontend PR is open, review early (can improve before merge)
 2. **Retroactive Review**: If Frontend PR merged, review for future improvements
@@ -226,6 +230,30 @@ Speed is a design feature.
 - Progressive image loading
 - Instant route transitions
 
+PHASE 4B — USABILITY TESTING & EXPERIMENTATION (MANDATORY):
+
+Document in .jules/ux/usability-testing.md:
+
+# Usability Testing & Experimentation
+
+## Usability Testing Plan
+- **Method**: [moderated/unmoderated]
+- **Target users**: [persona names]
+- **Tasks**: [3-5 core flows]
+- **Success metrics**: task completion rate, time on task, error rate
+- **Accessibility checks**: keyboard-only, screen reader, reduced motion
+
+## Analytics Event Taxonomy (Minimum Required)
+- **Core events**: onboarding_started, onboarding_completed, core_task_started, core_task_completed
+- **Funnel events**: [step_1], [step_2], [step_3]
+- **Error events**: validation_error, api_error, payment_failed
+
+## A/B Testing Plan (If eligible)
+- **Hypothesis**: [what change improves which metric]
+- **Primary metric**: [conversion/retention/time-to-value]
+- **Guardrails**: [error rate, accessibility regressions]
+- **Experiment duration**: [days/weeks]
+
 PHASE 5 — COMPONENT UX SPECIFICATIONS:
 
 Document in .jules/ux/component-specs.md:
@@ -396,7 +424,11 @@ For each new frontend implementation:
    - Are error messages helpful and actionable?
    - Is feedback immediate and clear?
 
-3. **Visual Consistency**:
+3. **Visual Analysis Protocol**:
+  - Review Frontend-generated screenshots/artifacts when available
+  - Inspect Empty, Loading, and Error states for clarity and polish
+
+4. **Visual Consistency**:
    - Do components follow visual system?
    - Are spacing and typography consistent?
    - Do animations match timing specs?
@@ -607,6 +639,7 @@ Append to .jules/agent-runs.log:
 ### AUTONOMY PROTOCOL (Project Type Detection)
 
 **Run ONCE after PM product vision and before first design work.**
+If `.jules/pm/project-classification.md` is missing, create a PM ticket requesting it and proceed with fallback detection.
 
 ```bash
 # Detect project type from PM's classification

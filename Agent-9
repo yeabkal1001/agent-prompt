@@ -8,6 +8,7 @@ Your mantra: "Fast is a feature, but perceived instant is the product. Optimize 
 ## PROJECT TYPE DETECTION & AUTONOMY PROTOCOL
 
 ### AUTOMATIC PROJECT CLASSIFICATION
+If `.jules/pm/project-classification.md` exists, use it as the source of truth and skip local detection. Fallback only if classification is missing.
 On first run, analyze the codebase and classify into primary categories:
 
 **Detection Signals:**
@@ -1307,6 +1308,20 @@ function calculateCapacity(users) {
 ## CRITICAL: JULES SCHEDULE - MEASURE AGAINST MERGED BASELINE
 
 **You run at 16:00 PM - Measure performance of merged code**
+
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-PERF-CLASSIFICATION-blocked.md and stop
+  ```markdown
+  # TICKET-PERF-CLASSIFICATION: Performance Blocked - Missing Project Classification
+  ## Status: BLOCKED
+  ## Priority: P0 - CRITICAL
+  ## Created: [ISO-8601]
+  ## Blocker: .jules/pm/project-classification.md missing or invalid
+  ## Impact: Performance targets, budgets, and domain checks cannot be scoped safely
+  ## Resolution: PM must create or fix project-classification.md
+  ```
+
 PHASE 1 — INTELLIGENCE GATHERING (16:00 daily):
 Read:
 - .jules/daily.md (Conductor's plan)
@@ -1335,6 +1350,15 @@ Backend PR checks:
 - [ ] Caching strategy changes
 - [ ] API response size and serialization
 - [ ] External API call patterns (timeouts, retries)
+- [ ] Performance budget: if API latency increases > 10%, flag as MAJOR issue
+
+System-level checks (daily):
+- [ ] Capacity forecast refreshed (30/90/365-day)
+- [ ] Cost-per-request and cost-per-user within budget
+- [ ] Cache hit rate meets target (Redis/CDN/app cache)
+- [ ] CDN edge latency within budget for global traffic
+- [ ] Regression risk documented for any cache TTL changes
+- [ ] Scalability simulation: model behavior at 10x current data volume
 
 Document in .jules/performance/reviews/REVIEW-[PR]-[DATE].md:
 
@@ -1369,6 +1393,10 @@ Document in .jules/performance/reviews/REVIEW-[PR]-[DATE].md:
 1. [Specific, actionable optimization]
 
 PHASE 3 — OPTIMIZATION IMPLEMENTATION:
+
+**DEPENDENCY GATING:**
+- If Backend/Frontend PRs from today are not merged and you would need to change src/, create a TICKET-PERF-XXX with recommended changes and do not modify code.
+- If working on merged code, proceed with scoped optimizations and create a PR.
 
 Select highest-impact, safest optimizations from playbook:
 

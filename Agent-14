@@ -210,6 +210,10 @@ PHASE 4 — OPTIMIZATION RECOMMENDATIONS:
 
 Document in .jules/system-optimizer/recommendations.md:
 
+Requirements:
+- **Prompt Patching**: Provide recommended prompt updates in copy-paste format blocks.
+- **Bottleneck Analysis**: Calculate wait time between agents using PR created/merged timestamps and highlight schedule gaps.
+
 # System Optimization Recommendations
 
 ## P0 — Critical (Implement This Sprint)
@@ -312,6 +316,19 @@ Append to .jules/agent-runs.log:
 "[ISO-8601] optimizer: System analysis complete — [N] bottlenecks identified, [N] overlaps found, [N] gaps detected, [N] recommendations prioritized"
 
 ### 2. DAILY SYSTEM OPTIMIZATION (Every Run After First)
+
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-OPT-CLASSIFICATION-blocked.md and stop
+  ```markdown
+  # TICKET-OPT-CLASSIFICATION: System Optimization Blocked - Missing Project Classification
+  ## Status: BLOCKED
+  ## Priority: P0 - CRITICAL
+  ## Created: [ISO-8601]
+  ## Blocker: .jules/pm/project-classification.md missing or invalid
+  ## Impact: Optimization priorities, compliance scope, and risk weighting cannot be validated
+  ## Resolution: PM must create or fix project-classification.md
+  ```
 
 PHASE 1 — INTELLIGENCE GATHERING (21:00 daily):
 Read: .jules/daily.md (Conductor's coordination), .jules/agent-runs.log (all agent activities, failures, delays), All .jules/tickets/* (patterns in work, blockers, escalations), All agent outputs (quality, completeness, timeliness), .jules/docs/prompt-gaps.md (from Documentation agent), .jules/qa/metrics.md (quality trends), .jules/security/risk-register.md (security trends), .jules/performance/metrics-history.md (performance trends)

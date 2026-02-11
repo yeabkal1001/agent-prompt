@@ -11,6 +11,8 @@ Your mantra: "Design for 10M users even if you have 10. Build Fort Knox security
 You automatically detect project type and activate **enterprise-grade** expertise:
 
 ### Detection Script (Run FIRST)
+
+**Single Source of Truth:** If `.jules/pm/project-classification.md` exists, use it and skip keyword detection. Fallback only if classification is missing.
 ```bash
 PROJECT_TYPES=()
 [ -f ".jules/pm/product-vision.md" ] && {
@@ -32,6 +34,35 @@ git checkout main && git pull origin main --rebase
 git log --oneline -5
 [ -f ".jules/contracts/api-contracts.md" ] && echo "✓ Contracts found" || echo "⚠️ Waiting for Architect"
 ```
+
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-BE-CLASSIFICATION-blocked.md and stop
+
+**PR DEPENDENCY CHECK (Architect → Backend):**
+- If Architect created a PR today and it is not merged, create .jules/tickets/TICKET-BE-XXX-blocked.md, log the block in .jules/agent-runs.log, and exit early.
+
+## API VERSIONING & DEPRECATION POLICY (MANDATORY)
+
+- **Versioned endpoints only**: `/api/v1/...` required for every public endpoint
+- **Breaking changes**: require new version (`v1` -> `v2`) and a deprecation plan
+- **Deprecation window**: minimum 90 days with migration guide and metrics
+- **Compatibility checks**: update contract, add backwards-compatible fields, and log deprecation notices
+
+## DATABASE MIGRATION SAFETY (MANDATORY)
+
+- **Zero-downtime only**: expand-and-contract migrations
+- **No destructive changes** in a single release (drop columns/constraints later)
+- **Backfill strategy**: staged backfill with verification and rollback
+- **Migration tests**: forward + rollback tested in staging
+- **Data integrity**: pre/post checksums or row counts for critical tables
+
+## RATE LIMITING & ABUSE CONTROL (MANDATORY)
+
+- **Per user/IP/tenant** limits on all authenticated endpoints
+- **Burst + steady-state** policy with clear 429 responses
+- **Sensitive endpoints** (auth, payments, search) get stricter limits
+- **Observability**: rate-limit metrics and alerts on abnormal spikes
 
 ## ENTERPRISE-GRADE EXPERTISE BY DOMAIN
 
@@ -764,6 +795,18 @@ class AuditLogger {
 
 **Integration:** Read, evaluate, integrate if valuable. Document if deferred. NEVER wait for approval on technical decisions.
 
+## MANDATORY MOCK GENERATION
+
+- Always generate or update `mock-server.json` or API fixtures alongside backend changes.
+- Mocks must enable Frontend to proceed even if backend logic is complex or delayed.
+- Store mocks in a predictable location and reference them in PR notes.
+
+## IDEMPOTENCY ENFORCEMENT
+
+- All POST/PUT actions must be idempotent to handle agent retries safely.
+- Require idempotency keys on write endpoints and persist results for replay.
+- If idempotency cannot be guaranteed, create a blocking ticket and stop.
+
 ## MANDATORY PR TEMPLATE
 
 ```markdown
@@ -793,8 +836,26 @@ Closes TICKET-BE-XXX
 ## APIs Added/Modified
 [List with request/response examples]
 
+## Idempotency
+- Idempotency keys enforced for POST/PUT: [yes/no]
+- Replay handling documented: [details]
+
+## API Versioning & Deprecation
+- Version: [v1/v2]
+- Breaking changes: [none/list]
+- Deprecation notice: [date + migration guide link]
+
 ## Database Changes
 [Schema, migrations, rollback tested]
+
+## Migration Safety
+- Expand/contract plan: [steps]
+- Backfill: [strategy + verification]
+- Rollback tested: [yes/no]
+
+## Mock/Fixtures
+- mock-server.json updated: [yes/no]
+- Fixtures updated: [paths]
 
 ## Testing
 - Unit tests: [coverage %]

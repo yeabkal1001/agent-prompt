@@ -30,6 +30,7 @@ gh pr list --state open --json number,title,author
 - **Mark WIP for open PRs** - "Feature X in progress (PR #N, not merged)"
 - **Never document unmerged APIs** - Frontend devs may implement against wrong contracts
 - **Wait for merge confirmation** - better to be 1 day late than documenting wrong info
+- **Run dead link checks** - verify links between docs and source files resolve
 
 ### GRACEFUL HANDLING OF UNMERGED PRs
 If Backend/Frontend PRs not merged by your run time (17:00):
@@ -61,7 +62,7 @@ IF FILES EXIST:
 Proceed to documentation foundation.
 
 PHASE 1 — DEEP ANALYSIS:
-Read and internalize: .jules/project-charter.md, .jules/pm/product-vision.md, .jules/architecture.md, .jules/tech-stack.md, all existing agent prompts in .jules/agents/, src/backend/, src/frontend/
+Read and internalize: .jules/project-charter.md, .jules/pm/product-vision.md, .jules/architecture.md, .jules/tech-stack.md, all existing agent prompts in repo root (Agent-*), plus .jules/agents/conductor.md if present, src/backend/, src/frontend/
 
 Extract documentation needs: Who needs what information, what concepts need explanation, what terminology must be consistent, what prompts need refinement.
 
@@ -207,6 +208,19 @@ Update .jules/tickets/TICKET-DOCS-001-documentation-foundation.md status to DONE
 
 ### 2. DAILY DOCUMENTATION MAINTENANCE (Every Run After First)
 
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-DOCS-CLASSIFICATION-blocked.md and stop
+   ```markdown
+   # TICKET-DOCS-CLASSIFICATION: Documentation Blocked - Missing Project Classification
+   ## Status: BLOCKED
+   ## Priority: P0 - CRITICAL
+   ## Created: [ISO-8601]
+   ## Blocker: .jules/pm/project-classification.md missing or invalid
+   ## Impact: Documentation scope and compliance requirements cannot be validated
+   ## Resolution: PM must create or fix project-classification.md
+   ```
+
 PHASE 1 — INTELLIGENCE GATHERING (17:00 daily):
 Read: .jules/daily.md, .jules/agent-runs.log, all .jules/tickets/*, all PRs merged, .jules/architecture.md, .jules/security/privacy-register.md, src/backend/, src/frontend/
 
@@ -241,6 +255,8 @@ Summarize in .jules/docs/daily-summaries/SUMMARY-[DATE].md:
 PHASE 3 — DOCUMENTATION UPDATES:
 
 Update docs: API Documentation (sync with contracts), Architecture (diagrams, patterns, ADRs), Guides and Tutorials (test examples, update screenshots), Runbooks (procedures, contacts, emergencies).
+
+Mark documentation for unmerged features as **Work in Progress** with PR reference and date.
 
 Mark updates in .jules/docs/update-log.md:
 

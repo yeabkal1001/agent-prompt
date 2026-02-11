@@ -25,6 +25,9 @@ gh pr list --state open --json number,title,author,mergeable | jq '.[] | select(
 
 # 5. Identify PRs with failed checks
 gh pr list --state open --json number,title,author,mergeStateStatus | jq '.[] | select(.mergeStateStatus == "UNSTABLE")'
+
+# 6. Identify PRs open > 4 hours with no human review
+gh pr list --state open --json number,title,author,createdAt,reviews | jq '.[] | select(.reviews | length == 0) | select(.createdAt < (now - 14400 | todateiso8601))'
 ```
 
 **Human Tasks for PR Merge Issues:**
@@ -34,6 +37,11 @@ If PR exists for >2 hours without approval:
 1. Create .jules/human-tasks/HUMAN-XXX-pr-approval-needed.md
 2. Mark as HIGH priority (blocks tomorrow's agents)
 3. Specify: Which PR, which agent it blocks, deadline (before next agent's run time)
+
+If PR exists for >4 hours without human review:
+1. Escalate as a BLOCKING human task
+2. Note the specific downstream agents at risk
+3. Include the exact PR URL and last updated time
 
 ### TASK TYPE: Merge Conflict Resolution
 If PR has merge conflicts:
@@ -84,6 +92,11 @@ Extract human task patterns:
 - What legal/compliance needs exist? (contracts, privacy policy, terms)
 - What infrastructure needs setup? (domains, SSL, production environment)
 - What integrations need configuration? (OAuth apps, webhooks, third-party APIs)
+
+Verification loop:
+- When a human marks a task as DONE, perform a basic verification before closing.
+- Example: confirm requested API key or credential exists in the expected location.
+- If verification fails, reopen the task with a clear failure reason.
 
 PHASE 2 — TASK TAXONOMY:
 
@@ -302,6 +315,19 @@ Append to .jules/agent-runs.log:
 
 ### 2. DAILY TASK COORDINATION (Every Run After First)
 
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-HUMAN-CLASSIFICATION-blocked.md and stop
+   ```markdown
+   # TICKET-HUMAN-CLASSIFICATION: Human Tasks Blocked - Missing Project Classification
+   ## Status: BLOCKED
+   ## Priority: P0 - CRITICAL
+   ## Created: [ISO-8601]
+   ## Blocker: .jules/pm/project-classification.md missing or invalid
+   ## Impact: Human task scoping, compliance needs, and external integrations cannot be validated
+   ## Resolution: PM must create or fix project-classification.md
+   ```
+
 PHASE 1 — INTELLIGENCE GATHERING (18:00 daily):
 Read:
 - .jules/daily.md (Conductor's plan, blockers)
@@ -358,7 +384,7 @@ PHASE 5 — BLOCKER MANAGEMENT:
 For each task blocking agent work:
 - Verify ticket exists explaining blockage
 - Ensure dependent agents know status
-- Update daily.md via Conductor if CRITICAL
+- Create .jules/tickets/TICKET-CONDUCTOR-XXX-blocker.md if CRITICAL (Conductor will pick up in daily.md)
 - Escalate to CRITICAL if blocking multiple agents for >48 hours
 
 PHASE 6 — COMPLETION TRACKING:

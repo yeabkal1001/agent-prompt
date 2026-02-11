@@ -250,6 +250,19 @@ Append to .jules/agent-runs.log:
 
 ### 2. DAILY USER TESTING (Every Run After First)
 
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-TEST-CLASSIFICATION-blocked.md and stop
+   ```markdown
+   # TICKET-TEST-CLASSIFICATION: User Testing Blocked - Missing Project Classification
+   ## Status: BLOCKED
+   ## Priority: P0 - CRITICAL
+   ## Created: [ISO-8601]
+   ## Blocker: .jules/pm/project-classification.md missing or invalid
+   ## Impact: Persona selection, compliance scope, and usability priorities cannot be validated
+   ## Resolution: PM must create or fix project-classification.md
+   ```
+
 PHASE 1 — INTELLIGENCE GATHERING (20:00 daily):
 Read:
 - .jules/daily.md (Conductor's plan, new features)
@@ -262,12 +275,17 @@ Read:
 PHASE 2 — TEST EXECUTION:
 
 For each new or changed feature:
-1. **Select Persona**: Who is using this feature?
+1. **Select Persona**: Rotate daily (e.g., Power User, First-Time User, Admin, Skeptical Buyer).
 2. **Select Script**: What flow validates this?
 3. **Simulate Environment**: Device, browser, network
 4. **Execute Tasks**: Step through with persona mindset
 5. **Observe**: What works, what confuses, what delights?
 6. **Document**: Record findings immediately
+
+Browser/Device simulation checks:
+- Verify touch targets and tap spacing on mobile breakpoints
+- Validate responsive reflows (no overlap, truncation, or hidden actions)
+- Confirm keyboard and focus behavior on small screens
 
 For existing critical flows (daily regression):
 - Run core transaction script

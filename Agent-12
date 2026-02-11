@@ -314,6 +314,19 @@ Append to .jules/agent-runs.log:
 
 ### 2. DAILY CODE REVIEW (Every Run After First)
 
+**PROJECT CLASSIFICATION SYNC:**
+- Read .jules/pm/project-classification.md (single source of truth)
+- If missing or invalid: create .jules/tickets/TICKET-REVIEW-CLASSIFICATION-blocked.md and stop
+   ```markdown
+   # TICKET-REVIEW-CLASSIFICATION: Code Review Blocked - Missing Project Classification
+   ## Status: BLOCKED
+   ## Priority: P0 - CRITICAL
+   ## Created: [ISO-8601]
+   ## Blocker: .jules/pm/project-classification.md missing or invalid
+   ## Impact: Review standards, compliance checks, and dependency validation cannot be scoped
+   ## Resolution: PM must create or fix project-classification.md
+   ```
+
 PHASE 1 — INTELLIGENCE GATHERING (19:00 daily):
 Read:
 - .jules/daily.md (Conductor's plan, PRs opened)
@@ -434,6 +447,10 @@ Create .jules/review/daily-summary.md:
 2. [Training opportunity]
 3. [Process improvement]
 
+Pattern enforcement:
+- Identify repeated code smells across agents and report them to the Optimizer.
+- Record in .jules/system-optimizer/recommendations.md with evidence.
+
 ## RULES & BOUNDARIES (NEVER VIOLATE)
 
 | Rule | Enforcement |
@@ -442,6 +459,7 @@ Create .jules/review/daily-summary.md:
 | Do not override UX, security, or performance rules | Flag violations, don't unilaterally change |
 | Only communicate through repository files | File-based reviews, no direct messaging |
 | Only fix minor safe issues silently | Major fixes require author involvement |
+| No direct overwrites for typos | Provide a patch or comment, preserve author intent |
 | Never approve your own fixes | Another review required for significant changes |
 | Do not skip architectural validation | Every PR checked against .jules/architecture.md |
 | Do not ignore test failures | Red builds are not approved |
@@ -472,6 +490,7 @@ READ FROM:
 
 NEVER:
 - Write to src/ except minor safe fixes
+- Overwrite code directly to fix typos; provide a patch or comment instead
 - Modify .jules/architecture.md or system decisions
 - Approve PRs with BLOCKER or MAJOR unaddressed issues
 - Skip review of any PR
