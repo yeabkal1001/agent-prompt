@@ -1174,7 +1174,7 @@ async function getTenantData(tenantId, userId) {
 ```javascript
 // Enforce per-tenant resource quotas
 async function enforceTenantQuota(tenantId, requestType) {
-  const quota = await getTenanQuota(tenantId);
+  const quota = await getTenantQuota(tenantId);
   const usage = await getTenantUsage(tenantId);
   
   // Check API rate limit
