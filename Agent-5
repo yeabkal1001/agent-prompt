@@ -22,7 +22,8 @@ PROJECT_TYPES=()
     grep -qi "multi-language\|i18n\|international\|global\|localization" .jules/pm/product-vision.md && PROJECT_TYPES+=("I18N")
     grep -qi "enterprise\|saas\|b2b\|multi-tenant\|sso" .jules/pm/product-vision.md && PROJECT_TYPES+=("ENTERPRISE")
 }
-[ -d "ios" ] || [ -d "android" ] || [ -f "package.json" ] && grep -q "react-native\|expo" package.json && PROJECT_TYPES+=("MOBILE")
+[ -d "ios" ] || [ -d "android" ] && PROJECT_TYPES+=("MOBILE")
+[ -f "package.json" ] && grep -q "react-native\|expo" package.json 2>/dev/null && PROJECT_TYPES+=("MOBILE")
 [ -d "locales" ] || [ -d "i18n" ] || [ -d "public/locales" ] && PROJECT_TYPES+=("I18N")
 [ ${#PROJECT_TYPES[@]} -eq 0 ] && PROJECT_TYPES+=("WEB")
 PROJECT_TYPES=($(printf '%s\n' "${PROJECT_TYPES[@]}" | sort -u))
@@ -374,9 +375,10 @@ function ProductImage({ src, alt }: { src: string; alt: string }) {
 
 // Code Splitting & Dynamic Imports
 // src/pages/dashboard.tsx
+// Disable SSR for heavy chart components that use browser-specific APIs (Canvas, Web Workers)
 const HeavyChart = dynamic(() => import('../components/HeavyChart'), {
   loading: () => <ChartSkeleton />,
-  ssr: false // Client-only component
+  ssr: false // Browser-only: uses Canvas API and Web Workers
 });
 
 const AdminPanel = dynamic(() => import('../components/AdminPanel'), {
@@ -950,6 +952,16 @@ function CheckoutForm() {
 
 // Product Catalog - Advanced Filtering
 // src/components/catalog/ProductCatalog.tsx
+type SortOption = 'price_asc' | 'price_desc' | 'rating' | 'newest';
+
+interface Filters {
+  category?: string[];
+  priceMin?: number;
+  priceMax?: number;
+  search?: string;
+  sort?: SortOption;
+}
+
 function ProductCatalog() {
   const router = useRouter();
   const [filters, setFilters] = useState<Filters>({});
@@ -961,7 +973,7 @@ function ProductCatalog() {
       priceMin: query.min ? parseInt(query.min) : undefined,
       priceMax: query.max ? parseInt(query.max) : undefined,
       search: query.q as string,
-      sort: query.sort as any
+      sort: query.sort as SortOption
     });
   }, [router.query]);
   
@@ -1049,7 +1061,11 @@ i18n
     interpolation: {
       escapeValue: false,
       format: (value, format, lng) => {
-        if (format === 'currency') return new Intl.NumberFormat(lng, { style: 'currency', currency: 'USD' }).format(value);
+        // Get currency from locale context or use USD as fallback
+        const currencyMap = { 'en': 'USD', 'en-GB': 'GBP', 'de': 'EUR', 'fr': 'EUR', 'ja': 'JPY' };
+        const currency = currencyMap[lng] || 'USD';
+        
+        if (format === 'currency') return new Intl.NumberFormat(lng, { style: 'currency', currency }).format(value);
         if (format === 'date') return new Intl.DateTimeFormat(lng).format(value);
         if (format === 'number') return new Intl.NumberFormat(lng).format(value);
         return value;
@@ -1233,6 +1249,7 @@ function FontLoader() {
 // src/components/ui/Button.tsx
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Slot } from '@radix-ui/react-slot';
+import { cn } from '@/lib/utils'; // Utility: clsx + tailwind-merge
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50',
