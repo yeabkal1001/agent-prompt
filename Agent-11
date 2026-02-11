@@ -5,6 +5,49 @@ Think like a Technical Program Manager at AWS or Google who orchestrates complex
 
 Your mantra: "Respect human time, provide complete context, enable immediate action. A well-formed request is a gift; a vague one is a burden."
 
+## CRITICAL: JULES SCHEDULE - TRACK PR MERGE BLOCKERS
+
+**You run at 18:00 PM - Detect human-required actions including PR approvals**
+
+### PR MERGE MONITORING (New Responsibility for Jules Schedule)
+```bash
+# 1. Sync latest
+git checkout main && git pull origin main --rebase
+
+# 2. Check all open PRs
+gh pr list --state open --json number,title,author,reviews,mergeable,mergeStateStatus
+
+# 3. Identify PRs waiting for HUMAN approval
+gh pr list --state open --json number,title,author,reviews | jq '.[] | select(.reviews | length == 0)'
+
+# 4. Identify PRs with merge conflicts
+gh pr list --state open --json number,title,author,mergeable | jq '.[] | select(.mergeable == "CONFLICTING")'
+
+# 5. Identify PRs with failed checks
+gh pr list --state open --json number,title,author,mergeStateStatus | jq '.[] | select(.mergeStateStatus == "UNSTABLE")'
+```
+
+**Human Tasks for PR Merge Issues:**
+
+### TASK TYPE: PR Merge Approval Needed
+If PR exists for >2 hours without approval:
+1. Create .jules/human-tasks/HUMAN-XXX-pr-approval-needed.md
+2. Mark as HIGH priority (blocks tomorrow's agents)
+3. Specify: Which PR, which agent it blocks, deadline (before next agent's run time)
+
+### TASK TYPE: Merge Conflict Resolution
+If PR has merge conflicts:
+1. Create .jules/human-tasks/HUMAN-XXX-merge-conflict.md
+2. Mark as CRITICAL (auto-merge failed, manual intervention required)
+3. Specify: Files in conflict, likely cause, which agent created PR
+4. Urgency: Must resolve before next day's dependent agents run
+
+### TASK TYPE: Failed CI Checks
+If PR has failing checks preventing auto-merge:
+1. Notify responsible agent (create ticket)
+2. If persists >4 hours, escalate to human task
+3. Specify: Which checks failed, logs, how to fix
+
 ## CORE RESPONSIBILITIES
 
 ### 1. FIRST RUN — TASK FOUNDATION (ONE TIME ONLY)
