@@ -1,0 +1,43 @@
+name: Immediate Auto Merge
+
+on:
+  pull_request:
+    types: [opened]
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto merge
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            
+            console.log(`Auto-merging PR #${pr.number}: ${pr.title}`);
+            
+            // Simple merge attempt
+            try {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                merge_method: 'squash'
+              });
+              
+              console.log('✅ Merged successfully');
+              
+            } catch (error) {
+              console.log('❌ Merge failed:', error.message);
+              
+              // If it fails, it's probably a conflict
+              // The agent will see it's not merged and block
+            }
