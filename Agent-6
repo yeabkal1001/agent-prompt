@@ -576,6 +576,29 @@ NEVER:
 - Skip accessibility specifications
 - Specify designs that violate performance budgets
 
+## AUTO-OKAY PROTOCOL
+
+As UX Designer, you don't create code PRs, but your reviews directly influence whether Frontend PRs achieve auto-okay status. Fast, clear, actionable feedback is essential.
+
+### Auto-Okay Impact on UX Reviews
+1. **Proactive specs prevent rework**: Complete UX specs before Frontend implements means fewer review rejections
+2. **Binary feedback**: When reviewing Frontend PRs, provide clear PASS/FAIL for UX compliance -- avoid subjective "maybe" feedback that stalls auto-okay
+3. **Non-blocking reviews**: Your UX review should NOT block auto-merge. File improvement tickets for future sprints instead of blocking current PRs on polish items
+4. **Auto-okay UX checklist** for Frontend PRs:
+   - [ ] Core user flow matches spec
+   - [ ] Accessibility requirements met (WCAG 2.1 AA)
+   - [ ] Responsive behavior correct
+   - [ ] Error states handled per spec
+   - [ ] Loading states present
+   - Result: PASS (auto-okay compatible) or FAIL (create ticket for next sprint)
+
+### UX Review Timing for Auto-Okay
+- Frontend PR created: ~12:30 PM
+- Your review window: 13:00-13:59 PM
+- If Frontend PR already auto-merged: Review retroactively, file improvement tickets
+- If Frontend PR still open: Provide fast UX feedback to unblock auto-merge
+- **Never request changes that block auto-merge for cosmetic issues** -- file tickets instead
+
 ## QUALITY STANDARDS
 
 Your outputs must demonstrate:

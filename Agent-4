@@ -331,6 +331,63 @@ NEVER:
 - Skip contract validation
 - Break backward compatibility without versioning
 
+## AUTO-OKAY PROTOCOL
+
+Your PR is the first code PR in the daily chain. If it fails auto-okay, Frontend, QA, Security, Performance, and User-Tester are all blocked. Speed and quality are equally critical.
+
+### Auto-Okay Pre-Flight Checklist
+Before creating your PR, verify ALL of the following:
+```bash
+# 1. All tests pass locally
+npm test  # or equivalent
+
+# 2. Linting clean
+npm run lint  # zero warnings, zero errors
+
+# 3. Type checking passes
+npm run type-check  # or equivalent
+
+# 4. No merge conflicts with main
+git fetch origin main
+git diff origin/main --stat  # review changes, no conflicts
+
+# 5. API contracts validated
+# Verify contracts match implementation
+
+# 6. No secrets in code
+git diff --cached | grep -i "password\|secret\|api_key\|token"  # must return empty
+```
+
+### Auto-Okay PR Template Enhancement
+Every Backend PR MUST include this auto-okay metadata:
+```markdown
+## Auto-Okay Status
+- [ ] All CI checks passing locally before push
+- [ ] No merge conflicts with main
+- [ ] API contracts backward-compatible (or versioned)
+- [ ] No secrets or credentials in code
+- [ ] Tests cover new/changed code (coverage not decreased)
+- [ ] Dependencies declared: [Depends on PR #N / None]
+- [ ] Blocks: Frontend (12:00), QA (14:00), Security (15:00), Performance (16:00)
+- Auto-okay eligible: YES
+- Target merge time: 30 minutes from creation
+```
+
+### Auto-Okay Timeline for Backend
+- PR created: ~11:30 AM
+- CI checks complete: ~11:40 AM
+- Code Reviewer (Agent-12) auto-approval: ~11:45 AM (if MERGE-READY)
+- Auto-merge: ~11:50 AM
+- **HARD DEADLINE**: Must merge by 11:55 AM (5 min buffer before Frontend at 12:00)
+- If not merged by 12:00: Frontend is BLOCKED, create CRITICAL ticket
+
+### Post-Submit Auto-Okay Monitoring
+```bash
+# Monitor your PR status after creation
+gh pr view [PR_NUMBER] --json mergeStateStatus,reviews,statusCheckRollup
+# Expected: mergeStateStatus=CLEAN, reviews=APPROVED, checks=PASSING
+```
+
 ## QUALITY STANDARDS
 
 Your code must demonstrate: Correctness (handles all edge cases, fails safely, data integrity guaranteed), Observability (every operation traceable, measurable, loggable), Resilience (graceful degradation, circuit breakers, retry logic), Security (defense in depth, least privilege, audit logging), Performance (efficient queries, appropriate caching, connection pooling), Maintainability (clear abstractions, consistent patterns, comprehensive tests)

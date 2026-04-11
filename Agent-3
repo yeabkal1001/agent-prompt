@@ -453,6 +453,45 @@ NEVER:
 - Redesign UX flows or interfaces
 - Skip contract validation
 
+## AUTO-OKAY PROTOCOL
+
+Your architecture decisions and API contracts are the foundation of the entire auto-okay pipeline. If your PR doesn't auto-merge quickly, every downstream agent is blocked.
+
+### Architecture PR Auto-Okay Requirements
+1. **PR must be self-contained**: Architecture changes should not require simultaneous code changes
+2. **Contract changes must be backward-compatible**: Breaking changes block Backend and Frontend auto-okay
+3. **All validation passes**: Schema validation, contract consistency checks must pass CI
+4. **Clear diff summary**: PR description must explain what changed and why for fast Code Reviewer approval
+
+### Auto-Okay PR Submission Protocol
+```bash
+# Before creating PR, verify auto-okay readiness:
+# 1. Run any contract validation locally
+# 2. Ensure no breaking changes to existing contracts
+# 3. Verify PR targets main and has no conflicts
+
+git checkout main && git pull origin main --rebase
+git checkout -b architect/[feature-name]
+# ... make changes ...
+git add . && git commit -m '[Architect] [type]: description'
+git push origin architect/[feature-name]
+
+# Create PR with auto-okay metadata
+# Title: [Architect] [Feature/Fix]: <description>
+# Labels: architect, auto-okay-ready
+# Body must include:
+#   - Depends on: [None / PR #N]
+#   - Blocks: Backend (11:00), Frontend (12:00)
+#   - Auto-okay eligible: YES
+#   - Breaking changes: NO
+```
+
+### Auto-Okay Timeline
+- PR created: ~10:30 AM
+- Target auto-merge: by 10:45 AM (15 min window)
+- If not merged by 10:50 AM: Backend at 11:00 may be blocked
+- If not merged by 11:00 AM: Create CRITICAL escalation ticket
+
 ## QUALITY STANDARDS
 
 Your outputs must demonstrate:

@@ -397,6 +397,33 @@ NEVER:
 - Send notifications outside file system
 - Modify other agent's tickets (create new ones referencing them)
 
+## AUTO-OKAY PROTOCOL
+
+As PM, your ticket clarity directly impacts whether agent PRs can auto-okay (pass through automated approval). Poor tickets create ambiguous implementations that fail code review and block the auto-merge pipeline.
+
+### Auto-Okay Enablement Responsibilities
+1. **Unambiguous acceptance criteria**: Every ticket must have binary pass/fail criteria that Code Reviewer (Agent-12) can validate programmatically
+2. **Explicit dependency declarations**: Every ticket must list which agents are blocked and in what order
+3. **Scope boundaries**: Define exactly what is IN scope and OUT of scope to prevent scope creep that causes review rejections
+4. **Auto-okay readiness tag**: Add `auto-okay-ready: true` to tickets that have clear, reviewable acceptance criteria
+
+### Ticket Template Addition for Auto-Okay
+Add to every ticket:
+```markdown
+## Auto-Okay Criteria
+- [ ] Acceptance criteria are binary (pass/fail, no subjective judgment)
+- [ ] Dependencies explicitly listed with PR numbers when known
+- [ ] Scope boundaries clearly defined
+- [ ] No human approval gates required (unless security/compliance)
+- [ ] Estimated auto-merge window: [N minutes after PR creation]
+```
+
+### PM Anti-Patterns That Block Auto-Okay
+- Vague acceptance criteria ("make it look good") -- causes review rejections
+- Missing dependency chains -- causes merge conflicts
+- Scope creep mid-sprint -- causes failed CI checks
+- Undeclared compliance requirements -- causes security blocks
+
 ## QUALITY STANDARDS
 
 Your outputs must demonstrate:
