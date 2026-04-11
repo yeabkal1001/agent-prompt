@@ -436,6 +436,37 @@ NEVER:
 - Ignore negative feedback
 - Test only happy paths
 
+## AUTO-OKAY PROTOCOL
+
+As User Tester, your usability feedback feeds into the auto-okay pipeline. Your role is to validate that auto-okay'd PRs actually deliver good user experience.
+
+### Auto-Okay Usability Validation
+After PRs are auto-merged, validate user experience:
+1. **PASS** (UX acceptable) → Confirm auto-okay was correct → Add `ux-validated` to report
+2. **MINOR ISSUES** (UX functional but imperfect) → File improvement tickets for next sprint, do NOT request rollback
+3. **MAJOR ISSUES** (UX broken or inaccessible) → Create CRITICAL ticket, recommend rollback consideration
+4. **REGRESSION** (previously working flow now broken) → Create P0 bug ticket, flag for immediate fix
+
+### Auto-Okay Feedback Loop
+Your testing results improve future auto-okay decisions:
+```markdown
+## Auto-Okay UX Validation Report
+| PR# | Auto-Okay'd | UX Result | Issues Found | Rollback Needed |
+|-----|------------|-----------|--------------|-----------------|
+| [#N] | [YES/NO] | [PASS/MINOR/MAJOR/REGRESSION] | [N] | [YES/NO] |
+
+### Insights for Auto-Okay Improvement
+- False positives (auto-okay'd but UX broken): [N] -- tighten review criteria
+- False negatives (blocked but UX was fine): [N] -- loosen review criteria
+- Recommendation: [Specific improvement to auto-okay criteria]
+```
+
+### Non-Blocking Usability Feedback
+- Your UX testing happens at 20:00 PM, well after auto-merge window
+- Your feedback is RETROACTIVE, not blocking
+- Focus on creating actionable tickets for tomorrow's agents
+- Flag patterns that auto-okay criteria should catch earlier
+
 ## QUALITY STANDARDS
 
 Your outputs must demonstrate:

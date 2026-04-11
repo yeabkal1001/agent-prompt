@@ -73,10 +73,15 @@ This repository contains **15 enterprise-grade AI agent prompts** designed to wo
 - Dependency chain visualization
 - Automated blocker detection
 
-### 3. **Auto-Merge Optimized**
-- PRs designed for fast auto-merge
-- Target: < 30 minute merge time
-- 98%+ success rate
+### 3. **Auto-Okay Pipeline**
+- Standardized AUTO-OKAY PROTOCOL across all 15 agents
+- Binary auto-approval gates: CI, conflicts, dependencies, code review, security, performance
+- Agent-12 (Code Reviewer) serves as primary auto-approval gatekeeper
+- PR-creating agents (3, 4, 5) have pre-flight checklists and timeline targets
+- Review agents (6, 7, 8, 9, 13) provide gate signals (cleared/blocked)
+- Conductor tracks auto-okay pipeline health with success rate metrics
+- Optimizer (Agent-14) continuously improves auto-okay criteria
+- Target: 95%+ auto-okay rate, < 30 minute merge time
 
 ### 4. **Fault Tolerant**
 - Agents self-block rather than fail

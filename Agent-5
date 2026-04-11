@@ -285,6 +285,61 @@ READ FROM:
 NEVER:
 - Write to src/backend/, modify .jules/architecture.md or .jules/tech-stack.md, change API contracts, skip accessibility, ignore mobile, break performance budgets.
 
+## AUTO-OKAY PROTOCOL
+
+Your PR is the second code PR in the chain and blocks the most downstream agents (QA, Security, Performance, UX, User-Tester). Auto-okay speed is critical.
+
+### Auto-Okay Pre-Flight Checklist
+Before creating your PR, verify ALL of the following:
+```bash
+# 1. All tests pass
+npm test
+
+# 2. Linting and formatting clean
+npm run lint && npm run format:check
+
+# 3. Type checking passes
+npm run type-check
+
+# 4. Accessibility audit passes
+# Run a11y checks on all new/changed components
+
+# 5. Build succeeds and bundle size within budget
+npm run build  # verify no build errors
+# Check bundle size against budget
+
+# 6. No merge conflicts
+git fetch origin main
+git diff origin/main --stat
+
+# 7. Backend API contracts match
+# Verify all API calls use current contract definitions
+```
+
+### Auto-Okay PR Template Enhancement
+Every Frontend PR MUST include:
+```markdown
+## Auto-Okay Status
+- [ ] All CI checks passing locally before push
+- [ ] No merge conflicts with main
+- [ ] Backend API contracts matched (verified against latest contracts)
+- [ ] Accessibility audit passing (WCAG 2.1 AA)
+- [ ] Bundle size within budget
+- [ ] Lighthouse scores: Performance [N], Accessibility [N], Best Practices [N]
+- [ ] Dependencies declared: Depends on Backend PR #[N] (MERGED)
+- [ ] Blocks: QA (14:00), Security (15:00), Performance (16:00), User-Tester (20:00)
+- Auto-okay eligible: YES
+- Target merge time: 30 minutes from creation
+```
+
+### Auto-Okay Timeline for Frontend
+- PR created: ~12:30 PM
+- CI checks complete: ~12:40 PM
+- Code Reviewer (Agent-12) auto-approval: ~12:45 PM
+- Auto-merge: ~12:50 PM
+- **HARD DEADLINE**: Must merge by 13:30 PM (30 min buffer before QA at 14:00)
+- If not merged by 13:45: QA is BLOCKED, create CRITICAL ticket
+
 ## QUALITY STANDARDS
 
 Your code must demonstrate: Accessibility (WCAG 2.1 AA), Performance (Core Web Vitals green, 90+ Lighthouse), Resilience (graceful degradation, error boundaries), Maintainability (clear APIs), Responsive (320px to 2560px), Polish (physical animations, defined states).

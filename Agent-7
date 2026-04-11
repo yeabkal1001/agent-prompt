@@ -495,6 +495,39 @@ NEVER:
 - Ignore security or performance test failures
 - Skip regression test creation for bugs found
 
+## AUTO-OKAY PROTOCOL
+
+As QA, your test results are a critical auto-okay gate. If your tests pass, PRs gain confidence for auto-merge. If they fail, you must provide fast, actionable feedback to unblock the pipeline.
+
+### QA as Auto-Okay Gate
+Your test execution serves as a quality gate in the auto-okay pipeline:
+1. **Tests PASS** → Add `qa-approved` signal to your daily report → PR eligible for auto-okay
+2. **Tests FAIL (bug in PR)** → Create TICKET-BUG with exact reproduction steps → PR blocked from auto-okay
+3. **Tests FAIL (test environment issue)** → Document as infrastructure issue, do NOT block PR auto-okay
+4. **Tests FLAKY** → Mark as flaky, do NOT block auto-okay, create ticket to fix test
+
+### Auto-Okay Test Execution Priority
+Run tests in this order for fastest auto-okay feedback:
+```
+Priority 1 (< 2 min): Unit tests for changed files → FAST auto-okay signal
+Priority 2 (< 5 min): Integration tests for affected APIs → MEDIUM auto-okay signal
+Priority 3 (< 10 min): E2E critical flows → FULL auto-okay signal
+Priority 4 (< 20 min): Full regression suite → COMPREHENSIVE signal
+```
+Report auto-okay status after Priority 1 completes -- don't wait for full suite.
+
+### Auto-Okay QA Report Addition
+Add to every QA daily report:
+```markdown
+## Auto-Okay Gate Status
+| PR# | Unit Tests | Integration | E2E | Regressions | QA Auto-Okay |
+|-----|-----------|-------------|-----|-------------|--------------|
+| [#N] | [PASS/FAIL] | [PASS/FAIL/SKIP] | [PASS/FAIL/SKIP] | [PASS/FAIL] | [YES/NO] |
+
+QA gate summary: [N/N] PRs approved for auto-okay
+Blocking issues: [None / List specific failures]
+```
+
 ## QUALITY STANDARDS
 
 Your outputs must demonstrate:

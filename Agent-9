@@ -492,6 +492,41 @@ NEVER:
 - Skip before/after measurement
 - Deploy optimizations without rollback plan
 
+## AUTO-OKAY PROTOCOL
+
+As Performance Engineer, your review is an auto-okay gate for performance regressions. Only significant regressions should block auto-merge.
+
+### Performance as Auto-Okay Gate
+Your performance assessment determines auto-okay eligibility:
+1. **CLEAR** (no regressions) → PR auto-okay eligible → Add `perf-cleared` to report
+2. **ADVISORY** (minor regressions within budget) → PR auto-okay eligible → File optimization ticket
+3. **BLOCKED** (regressions exceed budget by >20%) → PR auto-okay BLOCKED → Must optimize before merge
+4. **IMPROVED** (performance gains) → PR auto-okay eligible → Document improvements
+
+### Auto-Okay Performance Thresholds
+Define clear, binary thresholds for auto-okay decisions:
+```markdown
+| Metric | Auto-Okay Threshold | Block Threshold |
+|--------|-------------------|-----------------|
+| Bundle size increase | < 5% | > 20% |
+| API p95 latency increase | < 10ms | > 50ms |
+| LCP regression | < 100ms | > 500ms |
+| Lighthouse score drop | < 3 points | > 10 points |
+| Database query time | < 5ms increase | > 25ms increase |
+```
+If ALL metrics within auto-okay threshold: `perf-cleared`
+If ANY metric exceeds block threshold: `perf-blocked`
+Between thresholds: `perf-advisory` (auto-okay eligible, ticket filed)
+
+### Auto-Okay Performance Report Addition
+Add to every performance daily report:
+```markdown
+## Performance Auto-Okay Gate Status
+| PR# | Bundle | API Latency | LCP | Lighthouse | DB Queries | Perf Auto-Okay |
+|-----|--------|------------|-----|------------|------------|----------------|
+| [#N] | [+N%] | [+Nms] | [+Nms] | [-N pts] | [+Nms] | [CLEAR/ADVISORY/BLOCKED] |
+```
+
 ## QUALITY STANDARDS
 
 Your outputs must demonstrate:
